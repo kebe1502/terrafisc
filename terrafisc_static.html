@@ -1,0 +1,1441 @@
+<!DOCTYPE html><html lang="fr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TERRAFISC</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--p:#6B3A2A;--pa:#4e2a1d;--acc:#C9A227;--bg:#fdf8f2;--card:#fff;--txt:#2a1a10;--mut:#8a7060;--bdr:#e2d5c8;--ok:#22a06b;--warn:#e07b28;--err:#d93025;--info:#1967d2;--purple:#6f42c1}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#2a1005 0%,#6B3A2A 60%,#C9A227 100%)}
+.lbox{background:#fff;border-radius:18px;padding:44px 38px;width:400px;box-shadow:0 24px 64px rgba(0,0,0,.35)}
+.logo{font-size:2.4rem;font-weight:900;letter-spacing:3px;color:var(--p);text-align:center;margin-bottom:4px}.logo span{color:var(--acc)}.logo-tf{display:inline-block;background:var(--p);color:#C9A227;padding:4px 14px;border-radius:8px;font-size:2rem;font-weight:900;letter-spacing:3px;margin-bottom:8px}
+.logo-sub{text-align:center;font-size:.8rem;color:var(--mut);margin-bottom:30px;letter-spacing:.5px}
+#app{display:none}
+header{background:var(--p);color:#fff;border-bottom:3px solid var(--acc);height:52px;display:flex;align-items:center;padding:0 20px;gap:14px;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.brand{font-weight:800;font-size:1.1rem;letter-spacing:1.5px}.brand span{color:var(--acc)}
+#role-badge{background:rgba(255,255,255,.12);border-radius:20px;padding:3px 11px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.hright{margin-left:auto;display:flex;align-items:center;gap:12px}
+#notif-btn{cursor:pointer;background:none;border:none;color:#fff;font-size:1.05rem;position:relative;padding:4px}
+#notif-count{position:absolute;top:-5px;right:-5px;background:var(--err);color:#fff;border-radius:50%;width:17px;height:17px;font-size:.62rem;display:none;align-items:center;justify-content:center;font-weight:700}
+#logout-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 12px;border-radius:7px;cursor:pointer;font-size:.78rem}
+.layout{display:flex;min-height:calc(100vh - 52px)}
+nav{width:215px;background:#fff;border-right:1px solid var(--bdr);padding:14px 0;flex-shrink:0;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto}
+.nsec{padding:10px 16px 4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--mut)}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;color:var(--txt);font-size:.84rem;border-left:3px solid transparent;transition:.12s}
+.ni:hover{background:#f0f4f9;color:var(--p)}
+.ni.active{background:#fdf3e0;color:var(--p);border-left-color:var(--acc);font-weight:600}
+.nico{font-size:14px;width:18px;text-align:center}
+.main{flex:1;padding:22px;overflow-y:auto}
+.page{display:none}.page.active{display:block}
+.ptitle{font-size:1.2rem;font-weight:700;color:var(--p);margin-bottom:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.srch{margin-left:auto;background:#fff;border:1.5px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:.82rem;min-width:180px;outline:none}.srch:focus{border-color:var(--p)}
+.gstats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:#fff;border-radius:10px;padding:16px;border:1px solid var(--bdr);border-top:3px solid var(--p)}
+.stat .n{font-size:1.9rem;font-weight:800;color:var(--p);line-height:1}.stat .l{font-size:.73rem;color:var(--mut);margin-top:3px}
+.stat.acc{border-top-color:var(--acc)}.stat.acc .n{color:var(--acc)}
+.stat.ok{border-top-color:var(--ok)}.stat.ok .n{color:var(--ok)}
+.stat.warn{border-top-color:var(--warn)}.stat.warn .n{color:var(--warn)}
+.stat.err{border-top-color:var(--err)}.stat.err .n{color:var(--err)}
+.stat.purple{border-top-color:var(--purple)}.stat.purple .n{color:var(--purple)}
+.card{background:#fff;border-radius:11px;border:1px solid var(--bdr);margin-bottom:18px;overflow:hidden}
+.chead{padding:13px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:#fafbfc}
+.chead h3{font-size:.9rem;font-weight:700;color:var(--p)}
+.cbody{padding:16px 18px}
+table{width:100%;border-collapse:collapse}
+th{background:#f4f7fb;color:var(--mut);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:10px 12px;text-align:left;border-bottom:2px solid var(--bdr)}
+td{padding:10px 12px;border-bottom:1px solid #f0f3f8;font-size:.83rem;vertical-align:middle}
+tr:last-child td{border:none}tr:hover td{background:#f8faff}
+.btn{padding:7px 13px;border:none;border-radius:7px;cursor:pointer;font-size:.8rem;font-weight:600;transition:.13s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.bp{background:var(--p);color:#fff}.bp:hover{background:var(--pa)}
+.ba{background:var(--acc);color:#fff}.ba:hover{background:#c88018}
+.bd{background:var(--err);color:#fff;padding:4px 8px;font-size:.73rem}
+.bsuc{background:var(--ok);color:#fff}
+.bo{background:transparent;border:1px solid var(--bdr);color:var(--txt)}.bo:hover{background:#f0f4f9}
+.bsm{padding:4px 9px;font-size:.73rem}
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:.7rem;font-weight:700;white-space:nowrap}
+.bs{background:#d2f5e8;color:#0d6b42}.bw{background:#fff3cd;color:#7a5200}.be{background:#fce8e6;color:#9c1f1f}.bi{background:#d3e5fb;color:#1254a0}.bm{background:#eee;color:#555}.bp2{background:#ede7f6;color:#4a2faa}
+.fg{margin-bottom:13px}.fg label{display:block;font-size:.78rem;font-weight:700;color:var(--mut);margin-bottom:4px}
+input,select,textarea{width:100%;padding:8px 10px;border:1.5px solid var(--bdr);border-radius:7px;font-size:.86rem;color:var(--txt);background:#fff;outline:none;transition:border .13s}
+input:focus,select:focus,textarea:focus{border-color:var(--p)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;overflow-y:auto;padding:28px 14px;align-items:flex-start;justify-content:center}
+.mo.open{display:flex}
+.mobox{background:#fff;border-radius:14px;padding:26px;width:100%;max-width:520px;margin:auto}
+.mobox h3{font-size:1rem;font-weight:700;color:var(--p);margin-bottom:18px}
+.moftr{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.np{position:fixed;top:52px;right:0;width:340px;background:#fff;border-left:1px solid var(--bdr);height:calc(100vh - 52px);overflow-y:auto;z-index:300;transform:translateX(100%);transition:.22s}
+.np.open{transform:none}
+.nphead{padding:13px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:#f5f8fc}
+.nitem{padding:11px 14px;border-bottom:1px solid #f0f3f8;cursor:pointer;transition:.1s}
+.nitem:hover{background:#f5f8fc}
+.nitem.unread{background:#e8f0fd;border-left:3px solid var(--p)}
+.ntit{font-weight:700;font-size:.8rem;margin-bottom:2px}.ndesc{font-size:.76rem;color:var(--mut);line-height:1.4}.ntime{font-size:.68rem;color:var(--mut);margin-top:3px}
+.em-card{background:linear-gradient(135deg,#1a3a5c,#2d6a9f);color:#fff;border-radius:14px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.em-card::after{content:'🏆';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:3rem;opacity:.3}
+.em-card .em-month{font-size:.75rem;opacity:.8;text-transform:uppercase;letter-spacing:.8px}
+.em-card .em-name{font-size:1.3rem;font-weight:800;margin:4px 0}
+.em-card .em-bureau{font-size:.8rem;opacity:.85}
+.em-card .em-note{font-size:.85rem;margin-top:8px;opacity:.9}
+.tp-statut-paye{color:#0d6b42;font-weight:700}.tp-statut-retard{color:#9c1f1f;font-weight:700}.tp-statut-partiel{color:#7a5200;font-weight:700}
+.pgbar{background:#e8edf5;border-radius:6px;height:7px;overflow:hidden;margin-top:4px}
+.pgfill{height:100%;border-radius:6px;background:var(--p);transition:width .3s}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0}
+.role-chip{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.rc-chef_centre{background:#6B3A2A;color:#C9A227}.rc-chef_bureau{background:#4e2a1d;color:#fff}.rc-controleur{background:#8a6020;color:#fff}.rc-agent{background:#5a4030;color:#fff}
+.acts{display:flex;gap:5px;flex-wrap:wrap}
+.cht{position:relative;height:190px}
+.grids2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grids3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+#toast{position:fixed;bottom:22px;right:22px;color:#fff;padding:11px 16px;border-radius:9px;display:none;z-index:9999;font-size:.84rem;max-width:310px;box-shadow:0 4px 18px rgba(0,0,0,.3)}
+.empty{text-align:center;padding:38px 20px;color:var(--mut)}
+.empty .eico{font-size:2.2rem;margin-bottom:8px}
+.prio-H td:first-child{border-left:3px solid var(--err)}
+.prio-U td:first-child{border-left:3px solid var(--purple)}
+@media(max-width:900px){nav{position:fixed;left:0;top:52px;height:calc(100vh - 52px);z-index:300;transform:translateX(-100%);transition:transform .25s;width:220px;box-shadow:4px 0 18px rgba(0,0,0,.18)}nav.nav-open{transform:translateX(0)}.grids2,.grids3{grid-template-columns:1fr}.fr{grid-template-columns:1fr}.nav-overlay{display:block!important}}.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:299}#ham{display:flex}@media(min-width:901px){#ham{display:none!important}}
+</style></head><body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+<div class="lbox">
+ <div style="text-align:center;margin-bottom:24px">
+  <div class="logo-tf">TERRA<span style="color:#fff">FISC</span></div>
+  <div class="logo-sub">Système de Gestion Administrative · SIDBR 2025-2026</div>
+ </div>
+ <div class="fg"><label>Adresse e-mail</label><input id="l-e" type="email" placeholder="prenom.nom@terrafisc.sn" autocomplete="username"></div>
+ <div class="fg"><label>Mot de passe</label>
+  <div style="position:relative"><input id="l-p" type="password" placeholder="••••••••" autocomplete="current-password">
+  <button onclick="togglePw()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--mut);width:auto;padding:0">👁</button></div>
+ </div>
+ <div id="lerr" style="color:var(--err);font-size:12px;margin-bottom:10px;display:none"></div>
+ <button class="btn bp" style="width:100%;justify-content:center;padding:11px" onclick="doLogin()">🔐 Se connecter</button>
+ <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bdr);font-size:11px;color:var(--mut)">
+  <strong style="color:var(--txt);display:block;margin-bottom:8px">Comptes disponibles (mot de passe : <code>admin123</code>)</strong>
+  <div style="display:grid;gap:4px">
+   <div class="acc-r" onclick="setLogin('chef.centre@terrafisc.sn')" style="cursor:pointer;padding:4px 6px;border-radius:5px;hover:background:#f0f4f9;font-size:.78rem;color:var(--info)">👑 chef.centre@terrafisc.sn — Chef de Centre</div>
+   <div class="acc-r" onclick="setLogin('cb.gcs@terrafisc.sn')" style="cursor:pointer;padding:4px 6px;border-radius:5px;font-size:.78rem;color:var(--info)">🏢 cb.gcs@terrafisc.sn — Chef Bureau GCS</div>
+   <div class="acc-r" onclick="setLogin('cb.rec@terrafisc.sn')" style="cursor:pointer;padding:4px 6px;border-radius:5px;font-size:.78rem;color:var(--info)">🏢 cb.rec@terrafisc.sn — Chef Bureau REC</div>
+   <div class="acc-r" onclick="setLogin('ctrl.gcs1@terrafisc.sn')" style="cursor:pointer;padding:4px 6px;border-radius:5px;font-size:.78rem;color:var(--info)">🔍 ctrl.gcs1@terrafisc.sn — Contrôleur GCS</div>
+   <div class="acc-r" onclick="setLogin('agent.gcs1@terrafisc.sn')" style="cursor:pointer;padding:4px 6px;border-radius:5px;font-size:.78rem;color:var(--info)">👤 agent.gcs1@terrafisc.sn — Agent GCS</div>
+  </div>
+ </div>
+</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<header>
+ <button id="ham" onclick="toggleNav()" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;padding:4px;display:none">☰</button>
+ <div class="brand">TERRA<span>FISC</span></div>
+ <div id="role-badge"></div>
+ <div class="hright">
+  <div id="uname" style="font-size:.82rem;opacity:.85"></div>
+  <button id="notif-btn" onclick="toggleNotif()">🔔<span id="notif-count"></span></button>
+  <button id="logout-btn" onclick="doLogout()">Déconnexion</button>
+ </div>
+</header>
+<div class="nav-overlay" onclick="toggleNav()" style="display:none"></div>
+<div class="layout">
+<nav id="nav"></nav>
+<div class="main">
+ <div id="pg-dashboard" class="page"></div>
+ <div id="pg-bureaux" class="page"></div>
+ <div id="pg-activites" class="page"></div>
+ <div id="pg-taches" class="page"></div>
+ <div id="pg-affecter" class="page"></div>
+ <div id="pg-personnel" class="page"></div>
+ <div id="pg-performances" class="page"></div>
+ <div id="pg-employe-mois" class="page"></div>
+ <div id="pg-telepaiement" class="page"></div>
+ <div id="pg-signalements" class="page"></div>
+ <div id="pg-propositions" class="page"></div>
+ <div id="pg-cr" class="page"></div>
+ <div id="pg-avis" class="page"></div>
+ <div id="pg-profil" class="page"></div>
+</div>
+</div>
+</div>
+
+<!-- NOTIF PANEL -->
+<div class="np" id="np">
+ <div class="nphead"><span style="font-weight:700;font-size:.9rem">🔔 Notifications</span>
+  <div style="display:flex;gap:8px"><button class="btn bo bsm" onclick="toutLire()">Tout lire</button><button class="btn bo bsm" onclick="toggleNotif()">✕</button></div>
+ </div>
+ <div id="nlist"></div>
+</div>
+
+<!-- MODALS -->
+<div id="mo-activite" class="mo"><div class="mobox">
+ <h3>➕ Nouvelle activité</h3>
+ <div class="fg"><label>Nom</label><input id="ma-n" placeholder="Nom de l'activité"></div>
+ <div class="fr">
+  <div class="fg"><label>Type</label><select id="ma-t"><option>Mission</option><option>Formation</option><option>Audit</option><option>Atelier</option><option>Projet</option><option>Campagne</option></select></div>
+  <div class="fg"><label>Bureau</label><select id="ma-b"></select></div>
+ </div>
+ <div class="fr">
+  <div class="fg"><label>Date début</label><input type="date" id="ma-d"></div>
+  <div class="fg"><label>Date fin</label><input type="date" id="ma-f"></div>
+ </div>
+ <div class="fg"><label>Description</label><textarea id="ma-desc" rows="3"></textarea></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-activite')">Annuler</button><button class="btn ba" onclick="saveActivite()">Créer</button></div>
+</div></div>
+
+<div id="mo-tache" class="mo"><div class="mobox">
+ <h3>➕ Nouvelle tâche</h3>
+ <div class="fg"><label>Libellé</label><input id="mt-l" placeholder="Intitulé de la tâche"></div>
+ <div class="fg"><label>Activité</label><select id="mt-a"></select></div>
+ <div class="fr">
+  <div class="fg"><label>Date début</label><input type="date" id="mt-d"></div>
+  <div class="fg"><label>Date fin</label><input type="date" id="mt-f"></div>
+ </div>
+ <div class="fr">
+  <div class="fg"><label>Priorité</label><select id="mt-p"><option>Normale</option><option>Haute</option><option>Urgente</option><option>Basse</option></select></div>
+  <div class="fg"><label>Statut</label><select id="mt-s"><option>Non demarre</option><option>En cours</option><option>Terminee</option></select></div>
+ </div>
+ <div class="fg"><label>Description</label><textarea id="mt-desc" rows="2"></textarea></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-tache')">Annuler</button><button class="btn ba" onclick="saveTache()">Créer</button></div>
+</div></div>
+
+<div id="mo-affect" class="mo"><div class="mobox">
+ <h3>👤 Affecter un agent</h3>
+ <input type="hidden" id="aff-tid">
+ <div class="fg"><label>Tâche</label><input id="aff-tl" disabled></div>
+ <div class="fg"><label>Agent</label><select id="aff-pid"></select></div>
+ <div class="fg"><label>Rôle</label><select id="aff-r"><option>Executant</option><option>Principal</option><option>Support</option></select></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-affect')">Annuler</button><button class="btn ba" onclick="saveAffect()">Affecter</button></div>
+</div></div>
+
+<div id="mo-hist" class="mo"><div class="mobox">
+ <h3>📜 Historique des affectations</h3>
+ <div id="hist-c" style="margin-top:12px"></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-hist')">Fermer</button></div>
+</div></div>
+
+<div id="mo-personnel" class="mo"><div class="mobox">
+ <h3>➕ Nouveau membre du personnel</h3>
+ <div class="fr">
+  <div class="fg"><label>Nom</label><input id="mp-n" placeholder="NOM"></div>
+  <div class="fg"><label>Prénom</label><input id="mp-pr" placeholder="Prénom"></div>
+ </div>
+ <div class="fr">
+  <div class="fg"><label>Téléphone</label><input id="mp-t" placeholder="77XXXXXXX"></div>
+  <div class="fg"><label>Date de naissance</label><input type="date" id="mp-dob"></div>
+ </div>
+ <div class="fg"><label>Fonction</label><input id="mp-f" placeholder="Ex: Contrôleur des impôts"></div>
+ <div class="fr">
+  <div class="fg"><label>Rôle</label><select id="mp-r"><option value="agent">Agent</option><option value="controleur">Contrôleur</option><option value="chef_bureau">Chef de Bureau</option><option value="chef_centre">Chef de Centre</option></select></div>
+  <div class="fg"><label>Bureau</label><select id="mp-b"></select></div>
+ </div>
+ <div class="fg"><label>Supérieur direct</label><select id="mp-s"><option value="">-- Aucun --</option></select></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-personnel')">Annuler</button><button class="btn ba" onclick="savePersonnel()">Ajouter</button></div>
+</div></div>
+
+<div id="mo-noter" class="mo"><div class="mobox">
+ <h3>⭐ Évaluer un agent</h3>
+ <input type="hidden" id="n-pid">
+ <div class="fg"><label>Agent évalué</label><input id="n-nom" disabled></div>
+ <div class="fr">
+  <div class="fg"><label>Efficacité (%)</label><input type="number" id="n-eff" min="0" max="100" placeholder="0-100"></div>
+  <div class="fg"><label>Note (/20)</label><input type="number" id="n-note" min="0" max="20" placeholder="0-20"></div>
+ </div>
+ <div class="fg"><label>Prime (FCFA)</label><input id="n-prime" placeholder="Ex: 75000 FCFA"></div>
+ <div class="fg"><label>Commentaire</label><textarea id="n-comm" rows="3"></textarea></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-noter')">Annuler</button><button class="btn ba" onclick="saveNote()">Enregistrer</button></div>
+</div></div>
+
+<div id="mo-em" class="mo"><div class="mobox">
+ <h3>🏆 Désigner l'Employé du mois</h3>
+ <input type="hidden" id="em-pid">
+ <div class="fg"><label>Agent</label><select id="em-pid-sel"></select></div>
+ <div class="fr">
+  <div class="fg"><label>Mois</label><select id="em-mois"><option value="1">Janvier</option><option value="2">Février</option><option value="3">Mars</option><option value="4">Avril</option><option value="5">Mai</option><option value="6">Juin</option><option value="7">Juillet</option><option value="8">Août</option><option value="9">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select></div>
+  <div class="fg"><label>Année</label><input type="number" id="em-annee" value="2025"></div>
+ </div>
+ <div class="fg"><label>Note finale (/20)</label><input type="number" id="em-note" min="0" max="20" step="0.1"></div>
+ <div class="fg"><label>Motif</label><textarea id="em-motif" rows="3" placeholder="Motif de la désignation..."></textarea></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-em')">Annuler</button><button class="btn ba" onclick="saveEM()">Désigner</button></div>
+</div></div>
+
+<div id="mo-tp" class="mo"><div class="mobox">
+ <h3>💳 Nouveau télépaiement</h3>
+ <div class="fg"><label>Contribuable (Nom)</label><input id="tp-cn" placeholder="Nom ou raison sociale"></div>
+ <div class="fr">
+  <div class="fg"><label>NIF</label><input id="tp-nif" placeholder="SN000000"></div>
+  <div class="fg"><label>Bureau</label><select id="tp-b"></select></div>
+ </div>
+ <div class="fg"><label>Type d'impôt</label><select id="tp-type"><option>Impôt sur les Sociétés</option><option>TVA mensuelle</option><option>Taxe foncière</option><option>Taxe sur les salaires</option><option>Acompte IS</option><option>Droits de bornage</option><option>Taxe de plus-value immobilière</option><option>Contribution foncière bâtie</option></select></div>
+ <div class="fr">
+  <div class="fg"><label>Montant dû (FCFA)</label><input type="number" id="tp-mt" placeholder="0"></div>
+  <div class="fg"><label>Date d'échéance</label><input type="date" id="tp-ech"></div>
+ </div>
+ <div class="fg"><label>Notes</label><textarea id="tp-notes" rows="2"></textarea></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-tp')">Annuler</button><button class="btn ba" onclick="saveTP()">Créer</button></div>
+</div></div>
+
+<div id="mo-tp-update" class="mo"><div class="mobox">
+ <h3>✏️ Mettre à jour le paiement</h3>
+ <input type="hidden" id="tpu-id">
+ <div class="fg"><label>Montant payé (FCFA)</label><input type="number" id="tpu-mt"></div>
+ <div class="fg"><label>Statut</label><select id="tpu-statut"><option>En attente</option><option>Partiel</option><option>Paye</option><option>En retard</option></select></div>
+ <div class="fg"><label>Mode de paiement</label><select id="tpu-mode"><option value="">-- Sélectionner --</option><option>Virement bancaire</option><option>Mobile Money (Wave)</option><option>Mobile Money (Orange)</option><option>Carte bancaire</option><option>Virement BCEAO</option><option>Espèces</option></select></div>
+ <div class="fg"><label>Notes</label><textarea id="tpu-notes" rows="2"></textarea></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-tp-update')">Annuler</button><button class="btn ba" onclick="saveTPUpdate()">Mettre à jour</button></div>
+</div></div>
+
+<div id="mo-signal" class="mo"><div class="mobox">
+ <h3>⚠️ Nouveau signalement</h3>
+ <div class="fg"><label>Description du problème</label><textarea id="sg-d" rows="4" placeholder="Décrivez le problème rencontré..."></textarea></div>
+ <div class="fg"><label>Tâche concernée (optionnel)</label><select id="sg-t"><option value="">-- Aucune --</option></select></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-signal')">Annuler</button><button class="btn ba" onclick="saveSignal()">Envoyer</button></div>
+</div></div>
+
+<div id="mo-prop" class="mo"><div class="mobox">
+ <h3>💡 Proposer une activité</h3>
+ <div class="fg"><label>Type</label><select id="pp-t"><option>Mission</option><option>Formation</option><option>Audit</option><option>Atelier</option><option>Projet</option></select></div>
+ <div class="fg"><label>Description</label><textarea id="pp-d" rows="4" placeholder="Décrivez votre proposition..."></textarea></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-prop')">Annuler</button><button class="btn ba" onclick="saveProp()">Envoyer au N+1</button></div>
+</div></div>
+
+<div id="mo-cr" class="mo"><div class="mobox">
+ <h3>📄 Nouveau compte-rendu</h3>
+ <div class="fg"><label>Tâche</label><select id="cr-t"><option value="">-- Général --</option></select></div>
+ <div class="fg"><label>Contenu</label><textarea id="cr-c" rows="6" placeholder="Rédigez votre compte-rendu..."></textarea></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-cr')">Annuler</button><button class="btn ba" onclick="saveCR()">Soumettre</button></div>
+</div></div>
+
+<div id="mo-avis" class="mo"><div class="mobox">
+ <h3>⭐ Donner un avis</h3>
+ <div class="fg"><label>Note (1 à 5)</label><select id="av-n"><option value="5">⭐⭐⭐⭐⭐ Excellent</option><option value="4">⭐⭐⭐⭐ Très bien</option><option value="3">⭐⭐⭐ Bien</option><option value="2">⭐⭐ Passable</option><option value="1">⭐ Insuffisant</option></select></div>
+ <div class="fg"><label>Commentaire</label><textarea id="av-c" rows="4" placeholder="Votre avis sur l'application..."></textarea></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-avis')">Annuler</button><button class="btn ba" onclick="saveAvis()">Envoyer</button></div>
+</div></div>
+
+<div id="mo-gantt" class="mo"><div class="mobox" style="max-width:700px">
+ <h3 id="gantt-t">📊 Gantt</h3>
+ <div id="gantt-c" style="margin-top:12px"></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-gantt')">Fermer</button></div>
+</div></div>
+
+<div id="mo-chgpw" class="mo"><div class="mobox" style="max-width:380px">
+ <h3>🔒 Changer le mot de passe</h3>
+ <div class="fg"><label>Mot de passe actuel</label><input type="password" id="chgpw-old"></div>
+ <div class="fg"><label>Nouveau mot de passe</label><input type="password" id="chgpw-new"></div>
+ <div class="fg"><label>Confirmer</label><input type="password" id="chgpw-cf"></div>
+ <div class="moftr"><button class="btn bo" onclick="cm('mo-chgpw')">Annuler</button><button class="btn ba" onclick="doChangePw()">Changer</button></div>
+</div></div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  TERRAFISC — VERSION STATIQUE (localStorage)
+//  Toute la logique Flask/SQLite remplacée par JS pur
+// ══════════════════════════════════════════════════════
+
+let CU = null;
+const RFR = {chef_centre:'Chef de Centre',chef_bureau:'Chef de Bureau',controleur:'Contrôleur',agent:'Agent'};
+const RCOL = {chef_centre:'#1a3a5c',chef_bureau:'#145c3a',controleur:'#7a4a08',agent:'#3d3d3d'};
+const MFR = ['','Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+// ── UTILITAIRES ──
+function sha256(str){ // Simple hash simulé avec btoa pour la démo
+  return btoa(unescape(encodeURIComponent(str))).split('').reverse().join('').substring(0,32)+btoa(str).substring(0,32);
+}
+function h(p){ return sha256(p); }
+function genId(){ return Date.now() + Math.floor(Math.random()*10000); }
+function today(){ return new Date().toISOString().split('T')[0]; }
+function nowDT(){ return new Date().toISOString().replace('T',' ').substring(0,19); }
+
+// ── STOCKAGE ──
+function getDB(key){ try{ return JSON.parse(localStorage.getItem('tf_'+key)||'[]'); }catch(e){ return []; } }
+function setDB(key, data){ localStorage.setItem('tf_'+key, JSON.stringify(data)); }
+function getDBObj(key){ try{ return JSON.parse(localStorage.getItem('tf_'+key)||'{}'); }catch(e){ return {}; } }
+function setDBObj(key, data){ localStorage.setItem('tf_'+key, JSON.stringify(data)); }
+
+// ── INIT DONNÉES ──
+function initData(){
+  if(localStorage.getItem('tf_initialized')) return;
+
+  // BUREAUX
+  const bureaux = [
+    {bureau_id:1, nom:'Gestion des Contribuables et Services', code:'GCS', description:'Accueil, immatriculation, assistance et gestion des dossiers des contribuables'},
+    {bureau_id:2, nom:'Recouvrement', code:'REC', description:'Recouvrement des créances fiscales, mise en demeure, contraintes'},
+    {bureau_id:3, nom:'Bureau des Domaines', code:'DOM', description:'Gestion du domaine national, titres fonciers, concessions'},
+    {bureau_id:4, nom:'Conservation Foncière', code:'COF', description:'Conservation des titres de propriété, mutations, hypothèques'},
+    {bureau_id:5, nom:'Cadastre', code:'CAD', description:'Levés cadastraux, plans fonciers, fiscalité immobilière'},
+  ];
+  setDB('bureaux', bureaux);
+
+  const PWD = h('admin123');
+  // PERSONNEL
+  const personnel = [
+    {personnel_id:1, nom:'DIALLO', prenom:'PENDA', email:'chef.centre@terrafisc.sn', mot_de_passe:PWD, fonction:'Directeur du Centre des Impôts', role:'chef_centre', bureau_id:1, superieur_id:null, telephone:'771000001', annee_integration:2015, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:2, nom:'DIOP', prenom:'ABDOUL', email:'cb.gcs@terrafisc.sn', mot_de_passe:PWD, fonction:'Chef du Bureau GCS', role:'chef_bureau', bureau_id:1, superieur_id:1, telephone:'772000001', annee_integration:2017, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:3, nom:'TOURE', prenom:'Ibrahima', email:'cb.rec@terrafisc.sn', mot_de_passe:PWD, fonction:'Chef du Bureau Recouvrement', role:'chef_bureau', bureau_id:2, superieur_id:1, telephone:'772000002', annee_integration:2018, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:4, nom:'MBENGUE', prenom:'ABDOURAHMANE', email:'cb.dom@terrafisc.sn', mot_de_passe:PWD, fonction:'Chef du Bureau des Domaines', role:'chef_bureau', bureau_id:3, superieur_id:1, telephone:'772000003', annee_integration:2019, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:5, nom:'KA', prenom:'AMINATA', email:'cb.cof@terrafisc.sn', mot_de_passe:PWD, fonction:'Chef de la Conservation Foncière', role:'chef_bureau', bureau_id:4, superieur_id:1, telephone:'772000004', annee_integration:2020, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:6, nom:'DIAW', prenom:'AMI', email:'cb.cad@terrafisc.sn', mot_de_passe:PWD, fonction:'Chef du Cadastre', role:'chef_bureau', bureau_id:5, superieur_id:1, telephone:'772000005', annee_integration:2021, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:7, nom:'DIOUF', prenom:'ELHADJI', email:'ctrl.gcs1@terrafisc.sn', mot_de_passe:PWD, fonction:'Contrôleur', role:'controleur', bureau_id:1, superieur_id:2, telephone:'773000001', annee_integration:2019, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:8, nom:'SECK', prenom:'FALOU', email:'ctrl.gcs2@terrafisc.sn', mot_de_passe:PWD, fonction:'Inspecteur', role:'controleur', bureau_id:1, superieur_id:2, telephone:'773000002', annee_integration:2020, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:9, nom:'KEBE', prenom:'OUSMANE', email:'ctrl.rec1@terrafisc.sn', mot_de_passe:PWD, fonction:'Contrôleur', role:'controleur', bureau_id:2, superieur_id:3, telephone:'773000003', annee_integration:2019, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:10, nom:'DIALLO', prenom:'MOUHAMADOUL', email:'ctrl.rec2@terrafisc.sn', mot_de_passe:PWD, fonction:'Inspecteur', role:'controleur', bureau_id:2, superieur_id:3, telephone:'773000004', annee_integration:2020, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:11, nom:'SOW', prenom:'Pape', email:'ctrl.dom1@terrafisc.sn', mot_de_passe:PWD, fonction:'Contrôleur', role:'controleur', bureau_id:3, superieur_id:4, telephone:'773000005', annee_integration:2021, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:12, nom:'FAYE', prenom:'Aminata', email:'ctrl.dom2@terrafisc.sn', mot_de_passe:PWD, fonction:'Inspecteur', role:'controleur', bureau_id:3, superieur_id:4, telephone:'773000006', annee_integration:2019, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:13, nom:'DIOP', prenom:'Serigne', email:'ctrl.cof1@terrafisc.sn', mot_de_passe:PWD, fonction:'Contrôleur', role:'controleur', bureau_id:4, superieur_id:5, telephone:'773000007', annee_integration:2020, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:14, nom:'CISSE', prenom:'Adja', email:'ctrl.cof2@terrafisc.sn', mot_de_passe:PWD, fonction:'Inspecteur', role:'controleur', bureau_id:4, superieur_id:5, telephone:'773000008', annee_integration:2021, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:15, nom:'TOURE', prenom:'Boubacar', email:'ctrl.cad1@terrafisc.sn', mot_de_passe:PWD, fonction:'Contrôleur', role:'controleur', bureau_id:5, superieur_id:6, telephone:'773000009', annee_integration:2019, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:16, nom:'LY', prenom:'Marième', email:'ctrl.cad2@terrafisc.sn', mot_de_passe:PWD, fonction:'Inspecteur', role:'controleur', bureau_id:5, superieur_id:6, telephone:'773000010', annee_integration:2020, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:17, nom:'NGOM', prenom:'Awa', email:'agent.gcs1@terrafisc.sn', mot_de_passe:PWD, fonction:"Agent d'accueil", role:'agent', bureau_id:1, superieur_id:7, telephone:'774000001', annee_integration:2020, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:18, nom:'BADJI', prenom:'Lamine', email:'agent.gcs2@terrafisc.sn', mot_de_passe:PWD, fonction:'Agent de gestion', role:'agent', bureau_id:1, superieur_id:7, telephone:'774000002', annee_integration:2021, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:19, nom:'BODIAN', prenom:'Seynabou', email:'agent.gcs3@terrafisc.sn', mot_de_passe:PWD, fonction:'Téléconseiller', role:'agent', bureau_id:1, superieur_id:8, telephone:'774000003', annee_integration:2022, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:20, nom:'DIEME', prenom:'Aliou', email:'agent.rec1@terrafisc.sn', mot_de_passe:PWD, fonction:'Agent de recouvrement', role:'agent', bureau_id:2, superieur_id:9, telephone:'774000004', annee_integration:2020, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:21, nom:'CAMARA', prenom:'Khady', email:'agent.rec2@terrafisc.sn', mot_de_passe:PWD, fonction:'Agent de recouvrement', role:'agent', bureau_id:2, superieur_id:9, telephone:'774000005', annee_integration:2021, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:22, nom:'MENDY', prenom:'Ismaila', email:'agent.rec3@terrafisc.sn', mot_de_passe:PWD, fonction:'Agent de recouvrement', role:'agent', bureau_id:2, superieur_id:10, telephone:'774000006', annee_integration:2022, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:23, nom:'BASSENE', prenom:'Ndéye', email:'agent.dom1@terrafisc.sn', mot_de_passe:PWD, fonction:'Agent domanial', role:'agent', bureau_id:3, superieur_id:11, telephone:'774000007', annee_integration:2020, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:24, nom:'DIATTA', prenom:'Omar', email:'agent.dom2@terrafisc.sn', mot_de_passe:PWD, fonction:'Agent domanial', role:'agent', bureau_id:3, superieur_id:11, telephone:'774000008', annee_integration:2021, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:25, nom:'MANGA', prenom:'Madeleine', email:'agent.dom3@terrafisc.sn', mot_de_passe:PWD, fonction:'Agent domanial', role:'agent', bureau_id:3, superieur_id:12, telephone:'774000009', annee_integration:2022, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:26, nom:'GOMIS', prenom:'Pascal', email:'agent.cof1@terrafisc.sn', mot_de_passe:PWD, fonction:'Agent foncier', role:'agent', bureau_id:4, superieur_id:13, telephone:'774000010', annee_integration:2020, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:27, nom:'SAMBOU', prenom:'Bernadette', email:'agent.cof2@terrafisc.sn', mot_de_passe:PWD, fonction:'Agent foncier', role:'agent', bureau_id:4, superieur_id:13, telephone:'774000011', annee_integration:2021, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:28, nom:'TENDENG', prenom:'Joseph', email:'agent.cof3@terrafisc.sn', mot_de_passe:PWD, fonction:'Agent foncier', role:'agent', bureau_id:4, superieur_id:14, telephone:'774000012', annee_integration:2022, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:29, nom:'SANE', prenom:'Ousmane', email:'agent.cad1@terrafisc.sn', mot_de_passe:PWD, fonction:'Géomètre', role:'agent', bureau_id:5, superieur_id:15, telephone:'774000013', annee_integration:2020, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:30, nom:'BADIANE', prenom:'Célestine', email:'agent.cad2@terrafisc.sn', mot_de_passe:PWD, fonction:'Technicien cadastral', role:'agent', bureau_id:5, superieur_id:15, telephone:'774000014', annee_integration:2021, adresse:'', dateNaissance:'', photo_profil:''},
+    {personnel_id:31, nom:'COLY', prenom:'Augustin', email:'agent.cad3@terrafisc.sn', mot_de_passe:PWD, fonction:'Technicien cadastral', role:'agent', bureau_id:5, superieur_id:16, telephone:'774000015', annee_integration:2022, adresse:'', dateNaissance:'', photo_profil:''},
+  ];
+  setDB('personnel', personnel);
+
+  // ACTIVITÉS
+  const activites = [
+    {activite_id:1, nom:'Campagne immatriculation NIF 2025', type_activite:'Campagne', description:'Sensibilisation et immatriculation des contribuables non identifiés', dateDebut:'2025-04-01', dateFin:'2025-06-30', statut:'En cours', bureau_id:1, propose_par:2, validee_par:1},
+    {activite_id:2, nom:'Audit des dossiers GCS Q1', type_activite:'Audit', description:'Vérification et mise à jour des dossiers contribuables', dateDebut:'2025-03-01', dateFin:'2025-03-31', statut:'Terminee', bureau_id:1, propose_par:2, validee_par:1},
+    {activite_id:3, nom:'Opération recouvrement arrières T1', type_activite:'Mission', description:'Recouvrement des créances fiscales du 1er trimestre', dateDebut:'2025-04-10', dateFin:'2025-05-31', statut:'En cours', bureau_id:2, propose_par:3, validee_par:1},
+    {activite_id:4, nom:'Formation procédures de mise en demeure', type_activite:'Formation', description:'Formation des agents sur les nouvelles procédures', dateDebut:'2025-05-15', dateFin:'2025-05-17', statut:'Planifiee', bureau_id:2, propose_par:3, validee_par:1},
+    {activite_id:5, nom:'Révision des titres fonciers zone industrielle', type_activite:'Mission', description:'Mise à jour du registre des titres fonciers', dateDebut:'2025-04-01', dateFin:'2025-07-31', statut:'En cours', bureau_id:3, propose_par:4, validee_par:1},
+    {activite_id:6, nom:'Atelier foncier rural', type_activite:'Atelier', description:'Sensibilisation sur la sécurisation foncière rurale', dateDebut:'2025-06-01', dateFin:'2025-06-03', statut:'Planifiee', bureau_id:3, propose_par:4, validee_par:1},
+    {activite_id:7, nom:"Conservation titres quartier Almadies", type_activite:'Mission', description:'Traitement des mutations en attente', dateDebut:'2025-04-15', dateFin:'2025-05-30', statut:'En cours', bureau_id:4, propose_par:5, validee_par:1},
+    {activite_id:8, nom:"Informatisation registre hypothèques", type_activite:'Projet', description:'Numérisation des actes hypothécaires', dateDebut:'2025-01-01', dateFin:'2025-12-31', statut:'En cours', bureau_id:4, propose_par:5, validee_par:1},
+    {activite_id:9, nom:"Levé cadastral zone périurbaine", type_activite:'Mission', description:'Mise à jour du plan cadastral', dateDebut:'2025-05-01', dateFin:'2025-08-31', statut:'Planifiee', bureau_id:5, propose_par:6, validee_par:1},
+    {activite_id:10, nom:"Mise à jour base fiscalité immobilière", type_activite:'Mission', description:'Actualisation des valeurs locatives', dateDebut:'2025-04-01', dateFin:'2025-06-30', statut:'En cours', bureau_id:5, propose_par:6, validee_par:1},
+  ];
+  setDB('activites', activites);
+
+  // TÂCHES
+  const taches = [
+    {tache_id:1, libelle:'Préparation formulaires NIF', description:'Imprimer et distribuer les formulaires', dateDebut:'2025-04-01', dateFin:'2025-04-05', statut:'Terminee', priorite:'Haute', activite_id:1},
+    {tache_id:2, libelle:'Saisie des nouvelles immatriculations', description:'Saisir les données dans le système', dateDebut:'2025-04-06', dateFin:'2025-06-30', statut:'En cours', priorite:'Normale', activite_id:1},
+    {tache_id:3, libelle:'Rapport audit Q1 GCS', description:"Rédiger le rapport final de l'audit", dateDebut:'2025-03-25', dateFin:'2025-03-31', statut:'Terminee', priorite:'Haute', activite_id:2},
+    {tache_id:4, libelle:'Identification créanciers défaillants', description:'Lister les contribuables en arriéré', dateDebut:'2025-04-10', dateFin:'2025-04-20', statut:'Terminee', priorite:'Haute', activite_id:3},
+    {tache_id:5, libelle:'Émission mises en demeure', description:'Préparer et envoyer les mises en demeure', dateDebut:'2025-04-20', dateFin:'2025-05-10', statut:'En cours', priorite:'Haute', activite_id:3},
+    {tache_id:6, libelle:'TDR formation mise en demeure', description:'Rédiger les termes de référence', dateDebut:'2025-04-20', dateFin:'2025-04-30', statut:'En cours', priorite:'Normale', activite_id:4},
+    {tache_id:7, libelle:'Convocations formation', description:'Envoyer les convocations aux participants', dateDebut:'2025-05-01', dateFin:'2025-05-10', statut:'Non demarre', priorite:'Normale', activite_id:4},
+    {tache_id:8, libelle:'Inventaire titres fonciers zone ind.', description:'Dresser la liste des titres concernés', dateDebut:'2025-04-01', dateFin:'2025-04-15', statut:'Terminee', priorite:'Haute', activite_id:5},
+    {tache_id:9, libelle:'Mise à jour registre foncier', description:'Actualiser le registre informatisé', dateDebut:'2025-04-15', dateFin:'2025-07-31', statut:'En cours', priorite:'Normale', activite_id:5},
+    {tache_id:10, libelle:'Traitement mutations en attente', description:'Traiter les dossiers de mutation', dateDebut:'2025-04-15', dateFin:'2025-05-30', statut:'En cours', priorite:'Haute', activite_id:7},
+    {tache_id:11, libelle:'Scan actes hypothécaires', description:'Numériser les actes du registre A', dateDebut:'2025-01-15', dateFin:'2025-06-30', statut:'En cours', priorite:'Normale', activite_id:8},
+    {tache_id:12, libelle:'Actualisation valeurs locatives', description:'Mettre à jour les données fiscales', dateDebut:'2025-04-01', dateFin:'2025-06-30', statut:'En cours', priorite:'Haute', activite_id:10},
+  ];
+  setDB('taches', taches);
+
+  // AFFECTATIONS
+  const affectations = [
+    {affect_id:1, tache_id:1, personnel_id:17, role_affect:'Principal', date_affectation:'2025-04-01', actif:1, assigne_par:7},
+    {affect_id:2, tache_id:2, personnel_id:18, role_affect:'Executant', date_affectation:'2025-04-06', actif:1, assigne_par:7},
+    {affect_id:3, tache_id:2, personnel_id:19, role_affect:'Executant', date_affectation:'2025-04-06', actif:1, assigne_par:7},
+    {affect_id:4, tache_id:3, personnel_id:18, role_affect:'Principal', date_affectation:'2025-03-20', actif:1, assigne_par:8},
+    {affect_id:5, tache_id:4, personnel_id:20, role_affect:'Principal', date_affectation:'2025-04-10', actif:1, assigne_par:9},
+    {affect_id:6, tache_id:5, personnel_id:21, role_affect:'Executant', date_affectation:'2025-04-20', actif:1, assigne_par:9},
+    {affect_id:7, tache_id:5, personnel_id:22, role_affect:'Executant', date_affectation:'2025-04-20', actif:1, assigne_par:10},
+    {affect_id:8, tache_id:6, personnel_id:23, role_affect:'Principal', date_affectation:'2025-04-20', actif:1, assigne_par:11},
+    {affect_id:9, tache_id:8, personnel_id:23, role_affect:'Principal', date_affectation:'2025-04-01', actif:1, assigne_par:11},
+    {affect_id:10, tache_id:9, personnel_id:24, role_affect:'Executant', date_affectation:'2025-04-15', actif:1, assigne_par:12},
+    {affect_id:11, tache_id:10, personnel_id:26, role_affect:'Principal', date_affectation:'2025-04-15', actif:1, assigne_par:13},
+    {affect_id:12, tache_id:11, personnel_id:27, role_affect:'Executant', date_affectation:'2025-01-15', actif:1, assigne_par:14},
+    {affect_id:13, tache_id:12, personnel_id:30, role_affect:'Principal', date_affectation:'2025-04-01', actif:1, assigne_par:16},
+  ];
+  setDB('affectations', affectations);
+
+  // PERFORMANCES
+  const performances = [
+    {performance_id:1, efficacite:90, note:18, prime:'75000 FCFA', commentaire:'Excellent travail sur la campagne NIF', personnel_id:17, evalue_par:7, date_eval:'2025-03-31', mois:3, annee:2025},
+    {performance_id:2, efficacite:82, note:16, prime:'50000 FCFA', commentaire:'Bonne rigueur documentaire', personnel_id:18, evalue_par:7, date_eval:'2025-03-31', mois:3, annee:2025},
+    {performance_id:3, efficacite:95, note:19, prime:'100000 FCFA', commentaire:'Performance exceptionnelle sur le recouvrement', personnel_id:20, evalue_par:9, date_eval:'2025-03-31', mois:3, annee:2025},
+    {performance_id:4, efficacite:78, note:15, prime:null, commentaire:'Résultats satisfaisants, à améliorer', personnel_id:21, evalue_par:9, date_eval:'2025-03-31', mois:3, annee:2025},
+    {performance_id:5, efficacite:88, note:17, prime:'75000 FCFA', commentaire:'Très bonne gestion des titres fonciers', personnel_id:23, evalue_par:11, date_eval:'2025-03-31', mois:3, annee:2025},
+    {performance_id:6, efficacite:70, note:14, prime:null, commentaire:'Quelques retards à corriger', personnel_id:24, evalue_par:12, date_eval:'2025-03-31', mois:3, annee:2025},
+    {performance_id:7, efficacite:92, note:18, prime:'75000 FCFA', commentaire:'Excellent sur les mutations foncières', personnel_id:26, evalue_par:13, date_eval:'2025-03-31', mois:3, annee:2025},
+    {performance_id:8, efficacite:85, note:17, prime:'50000 FCFA', commentaire:'Bon travail sur la numérisation', personnel_id:30, evalue_par:16, date_eval:'2025-03-31', mois:3, annee:2025},
+  ];
+  setDB('performances', performances);
+
+  // EMPLOYÉ DU MOIS
+  const em = [
+    {em_id:1, personnel_id:20, mois:1, annee:2025, note_finale:18.5, motif:'Recouvrement exceptionnel : 98% du quota atteint, zéro réclamation', designe_par:3, date_designation:'2025-01-28'},
+    {em_id:2, personnel_id:17, mois:2, annee:2025, note_finale:17.8, motif:'Meilleure performance sur les immatriculations NIF du mois', designe_par:2, date_designation:'2025-02-28'},
+    {em_id:3, personnel_id:26, mois:3, annee:2025, note_finale:18.0, motif:'Excellence dans le traitement des mutations et délais respectés', designe_par:5, date_designation:'2025-03-28'},
+  ];
+  setDB('employe_mois', em);
+
+  // TÉLÉPAIEMENTS
+  const tp = [
+    {tp_id:1, reference:'TP2025-001', contribuable_nom:'SOCOCIM Industries', contribuable_nif:'SN000001', type_impot:'Impôt sur les Sociétés', montant:45000000, montant_paye:45000000, statut:'Paye', mode_paiement:'Virement bancaire', date_echeance:'2025-03-31', date_paiement:'2025-03-28', bureau_id:1, agent_id:17, notes:''},
+    {tp_id:2, reference:'TP2025-002', contribuable_nom:'AUCHAN Sénégal', contribuable_nif:'SN000002', type_impot:'TVA mensuelle', montant:12500000, montant_paye:12500000, statut:'Paye', mode_paiement:'Mobile Money (Wave)', date_echeance:'2025-04-20', date_paiement:'2025-04-18', bureau_id:1, agent_id:18, notes:''},
+    {tp_id:3, reference:'TP2025-003', contribuable_nom:'Groupe Maurel & Prom', contribuable_nif:'SN000003', type_impot:'Taxe foncière', montant:3200000, montant_paye:0, statut:'En attente', mode_paiement:'', date_echeance:'2025-04-30', date_paiement:'', bureau_id:5, agent_id:30, notes:'Contribuable en cours de constitution de dossier'},
+    {tp_id:4, reference:'TP2025-004', contribuable_nom:'SENELEC', contribuable_nif:'SN000004', type_impot:'Acompte IS', montant:18000000, montant_paye:18000000, statut:'Paye', mode_paiement:'Virement BCEAO', date_echeance:'2025-03-31', date_paiement:'2025-03-30', bureau_id:2, agent_id:20, notes:''},
+    {tp_id:5, reference:'TP2025-005', contribuable_nom:'Air Sénégal', contribuable_nif:'SN000005', type_impot:'Taxe sur les salaires', montant:2800000, montant_paye:1400000, statut:'Partiel', mode_paiement:'Mobile Money (Orange)', date_echeance:'2025-04-15', date_paiement:'2025-04-14', bureau_id:2, agent_id:21, notes:'Solde restant dû : 1 400 000 FCFA'},
+    {tp_id:6, reference:'TP2025-006', contribuable_nom:'SDE (Société des Eaux)', contribuable_nif:'SN000006', type_impot:'TVA mensuelle', montant:8900000, montant_paye:0, statut:'En retard', mode_paiement:'', date_echeance:'2025-04-10', date_paiement:'', bureau_id:2, agent_id:22, notes:'Mise en demeure émise le 15/04/2025'},
+    {tp_id:7, reference:'TP2025-007', contribuable_nom:'CBAO Banque', contribuable_nif:'SN000007', type_impot:'Taxe foncière TF n°1234', montant:950000, montant_paye:950000, statut:'Paye', mode_paiement:'Carte bancaire', date_echeance:'2025-03-15', date_paiement:'2025-03-14', bureau_id:4, agent_id:26, notes:''},
+    {tp_id:8, reference:'TP2025-008', contribuable_nom:'Résidence Les Almadies', contribuable_nif:'SN000008', type_impot:'Contribution foncière bâtie', montant:2100000, montant_paye:0, statut:'En attente', mode_paiement:'', date_echeance:'2025-05-31', date_paiement:'', bureau_id:4, agent_id:27, notes:'Dossier complet reçu'},
+    {tp_id:9, reference:'TP2025-009', contribuable_nom:'Cabinet Géomètre Diop', contribuable_nif:'SN000009', type_impot:'Droits de bornage', montant:350000, montant_paye:350000, statut:'Paye', mode_paiement:'Mobile Money (Wave)', date_echeance:'2025-04-01', date_paiement:'2025-04-01', bureau_id:5, agent_id:30, notes:''},
+    {tp_id:10, reference:'TP2025-010', contribuable_nom:'Lotissement SICAP', contribuable_nif:'SN000010', type_impot:'Taxe de plus-value immobilière', montant:5600000, montant_paye:5600000, statut:'Paye', mode_paiement:'Virement bancaire', date_echeance:'2025-04-05', date_paiement:'2025-04-04', bureau_id:3, agent_id:23, notes:''},
+  ];
+  setDB('telepaiements', tp);
+
+  // SIGNALEMENTS
+  const signalements = [
+    {signalement_id:1, description:'Manque de données dans le système pour 3 contribuables inscrits. Impossible de finaliser la saisie.', dateEnvoie:'2025-04-22', statut:'Ouvert', reponse:'', personnel_id:18, tache_id:2, destine_a:7},
+    {signalement_id:2, description:'Contribuable TP2025-006 (SDE) non joignable. Risque de dépassement de délai.', dateEnvoie:'2025-04-20', statut:'Ouvert', reponse:'', personnel_id:22, tache_id:5, destine_a:10},
+  ];
+  setDB('signalements', signalements);
+
+  // PROPOSITIONS
+  const propositions = [
+    {prop_id:1, description:"Organiser une journée portes ouvertes pour les nouveaux contribuables sur la procédure d'immatriculation en ligne.", type_activite:'Atelier', date_prop:'2025-04-18', statut:'En attente', propose_par:7, destine_a:2, commentaire_reponse:''},
+    {prop_id:2, description:'Mettre en place un tableau de suivi partagé pour les mises en demeure en cours afin d\'éviter les doublons.', type_activite:'Mission', date_prop:'2025-04-20', statut:'Acceptee', propose_par:9, destine_a:3, commentaire_reponse:'Excellente idée, on démarre la semaine prochaine.'},
+  ];
+  setDB('propositions', propositions);
+
+  // AVIS
+  const avis = [
+    {avis_id:1, commentaire:'Interface claire, la section télépaiement est très utile.', note:5, dateEnvoie:'2025-04-25', personnel_id:17},
+    {avis_id:2, commentaire:'Ajouter un export Excel des télépaiements.', note:4, dateEnvoie:'2025-04-26', personnel_id:20},
+    {avis_id:3, commentaire:"Le module employé du mois motive vraiment l'équipe !", note:5, dateEnvoie:'2025-04-27', personnel_id:26},
+  ];
+  setDB('avis', avis);
+
+  // COMPTES-RENDUS
+  setDB('comptes_rendus', []);
+
+  // NOTIFICATIONS
+  const notifs = [
+    {notification_id:1, titre:'Nouvelle tâche assignée', description:'Vous avez une nouvelle tâche. Consultez votre tableau de bord.', type_notif:'tache', dateEnvoie:'2025-04-22 08:00:00', statut:'Non lue', tache_id:2, destinataire_id:18},
+    {notification_id:2, titre:'Évaluation de performance', description:'Vous avez reçu une nouvelle évaluation. Note : 18/20', type_notif:'performance', dateEnvoie:'2025-03-31 17:00:00', statut:'Non lue', tache_id:null, destinataire_id:17},
+    {notification_id:3, titre:'Employé du mois - Mars 2025', description:'Félicitations ! Vous êtes désigné Employé du mois de Mars 2025.', type_notif:'employe_mois', dateEnvoie:'2025-03-28 09:00:00', statut:'Non lue', tache_id:null, destinataire_id:26},
+  ];
+  setDB('notifications', notifs);
+
+  localStorage.setItem('tf_initialized', '1');
+  localStorage.setItem('tf_seq_personnel', '32');
+  localStorage.setItem('tf_seq_activite', '11');
+  localStorage.setItem('tf_seq_tache', '13');
+  localStorage.setItem('tf_seq_affect', '14');
+  localStorage.setItem('tf_seq_perf', '9');
+  localStorage.setItem('tf_seq_em', '4');
+  localStorage.setItem('tf_seq_tp', '11');
+  localStorage.setItem('tf_seq_signal', '3');
+  localStorage.setItem('tf_seq_prop', '3');
+  localStorage.setItem('tf_seq_cr', '1');
+  localStorage.setItem('tf_seq_avis', '4');
+  localStorage.setItem('tf_seq_notif', '4');
+}
+
+function nextId(seq){
+  const v = parseInt(localStorage.getItem('tf_seq_'+seq)||'1');
+  localStorage.setItem('tf_seq_'+seq, v+1);
+  return v;
+}
+
+// ── HELPERS ──
+function getPers(id){ return getDB('personnel').find(p=>p.personnel_id===id)||null; }
+function getBureau(id){ return getDB('bureaux').find(b=>b.bureau_id===id)||null; }
+function getAct(id){ return getDB('activites').find(a=>a.activite_id===id)||null; }
+function getTache(id){ return getDB('taches').find(t=>t.tache_id===id)||null; }
+function persName(p){ return p?(p.prenom?p.prenom+' ':'')+p.nom:'—'; }
+
+function addNotif(titre, desc, type_n, dest_id, tache_id=null){
+  if(!dest_id) return;
+  const notifs = getDB('notifications');
+  notifs.push({notification_id:nextId('notif'), titre, description:desc, type_notif:type_n, dateEnvoie:nowDT(), statut:'Non lue', tache_id, destinataire_id:dest_id});
+  setDB('notifications', notifs);
+}
+
+// ── AUTH ──
+function doLogin(){
+  const email = document.getElementById('l-e').value.trim();
+  const pwd = document.getElementById('l-p').value;
+  const personnel = getDB('personnel');
+  const u = personnel.find(p=>p.email===email && p.mot_de_passe===h(pwd));
+  const lerr = document.getElementById('lerr');
+  if(!u){ lerr.textContent='Email ou mot de passe incorrect'; lerr.style.display='block'; return; }
+  lerr.style.display='none';
+  // Attach bureau name
+  const bur = getBureau(u.bureau_id);
+  CU = {...u, bureau_nom: bur?bur.nom:''};
+  initApp();
+}
+
+function doLogout(){
+  CU = null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('l-p').value='';
+}
+
+function setLogin(email){ document.getElementById('l-e').value=email; }
+function togglePw(){ const i=document.getElementById('l-p'); i.type=i.type==='password'?'text':'password'; }
+
+function initApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('role-badge').textContent=RFR[CU.role]||CU.role;
+  document.getElementById('uname').textContent=`${CU.prenom||''} ${CU.nom}`;
+  buildNav(); loadNotifs(); populateSels();
+  showPage('dashboard');
+  setInterval(loadNotifs, 30000);
+}
+
+function buildNav(){
+  const r = CU.role;
+  const items = [
+    {s:'Tableau de bord'},{p:'dashboard',i:'⊞',l:'Vue générale'},
+    {s:'Activités & Tâches'},
+    {p:'activites',i:'📋',l:'Activités'},{p:'taches',i:'✅',l:'Tâches'},
+    ...(r!=='agent'?[{p:'affecter',i:'👤',l:'Affectations'}]:[]),
+    {s:'Mon équipe'},
+    ...(r!=='agent'?[{p:'personnel',i:'👥',l:'Personnel'}]:[]),
+    {p:'performances',i:'📊',l:r==='agent'?'Mes évaluations':'Performances'},
+    {p:'employe-mois',i:'🏆',l:'Employé du mois'},
+    {s:'Fiscal & Paiement'},
+    {p:'telepaiement',i:'💳',l:'Télépaiements'},
+    {s:'Communication'},
+    {p:'signalements',i:'⚠️',l:'Signalements'},
+    {p:'propositions',i:'💡',l:['chef_bureau','chef_centre'].includes(r)?'Propositions reçues':'Proposer activité'},
+    ...(r!=='chef_centre'?[{p:'cr',i:'📄',l:'Comptes-rendus'}]:[]),
+    {p:'avis',i:'⭐',l:'Avis application'},
+    {s:'Mon profil'},
+    {p:'profil',i:'🪪',l:'Informations personnelles'},
+    ...(r==='chef_centre'?[{s:'Administration'},{p:'bureaux',i:'🏢',l:'Bureaux'}]:[]),
+  ];
+  document.getElementById('nav').innerHTML = items.map(i=>
+    i.s?`<div class="nsec">${i.s}</div>`:
+    `<div class="ni" data-p="${i.p}" onclick="showPage('${i.p}')"><span class="nico">${i.i}</span>${i.l}</div>`
+  ).join('');
+}
+
+let charts = {};
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const pg = document.getElementById('pg-'+name);
+  if(pg) pg.classList.add('active');
+  document.querySelector(`[data-p="${name}"]`)?.classList.add('active');
+  LOADS[name]?.();
+  // Close nav on mobile
+  if(window.innerWidth<=900){
+    document.getElementById('nav').classList.remove('nav-open');
+    document.querySelector('.nav-overlay').style.display='none';
+  }
+}
+
+function om(id){ document.getElementById(id).classList.add('open'); }
+function cm(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+
+function toast(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block';
+  t.style.background=type==='err'?'#9c1f1f':type==='ok'?'#0d6b42':type==='warn'?'#7a5200':'#1a3a5c';
+  try{
+    const ac=new AudioContext(),osc=ac.createOscillator(),g=ac.createGain();
+    osc.connect(g);g.connect(ac.destination);
+    osc.frequency.setValueAtTime(type==='err'?220:680,ac.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(type==='err'?180:880,ac.currentTime+0.08);
+    g.gain.setValueAtTime(0.12,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.25);
+    osc.start();osc.stop(ac.currentTime+0.25);
+  }catch(e){}
+  if(navigator.vibrate)navigator.vibrate(type==='err'?[80,40,80]:[50]);
+  setTimeout(()=>t.style.display='none',3200);
+}
+
+function badge(s){
+  const m={Terminee:'bs',Paye:'bs','En cours':'bw',Partiel:'bw',Planifiee:'bi','Non demarre':'bm',
+    'Non lue':'bw',Lue:'bm',Ouvert:'be',Traite:'bs',Acceptee:'bs',Refusee:'be','En attente':'bw',
+    Soumise:'bi',Soumis:'bw',Valide:'bs',Brouillon:'bm',Haute:'be',Normale:'bi',Urgente:'bp2','En retard':'be'};
+  return `<span class="badge ${m[s]||'bm'}">${s||'—'}</span>`;
+}
+function stars(n){return'<span style="color:#e8a020">'+('★'.repeat(n)+'☆'.repeat(5-n))+'</span>';}
+function fmt(n){return n!=null?Number(n).toLocaleString('fr-FR'):'—';}
+function pct(a,b){return b?Math.round(a/b*100):0;}
+function av(nom,prenom,role){const i=((nom||'?')[0]+(prenom||'?')[0]).toUpperCase();return `<div class="av" style="background:${RCOL[role]||'#888'};color:#fff">${i}</div>`;}
+
+function mkChart(id, rows, type='doughnut'){
+  if(charts[id]){ try{charts[id].destroy();}catch(e){} }
+  const ctx = document.getElementById(id)?.getContext('2d');
+  if(!ctx||!rows?.length) return;
+  const COLORS=['#6B3A2A','#C9A227','#22a06b','#1967d2','#e07b28','#d93025','#6f42c1','#145c3a','#8a6020'];
+  charts[id] = new Chart(ctx,{
+    type, data:{
+      labels:rows.map(r=>r.label||r.statut||r.type||r.nom||''),
+      datasets:[{data:rows.map(r=>r.count||r.total||r.value||r.n||0),
+        backgroundColor:COLORS,borderWidth:type==='doughnut'?2:0,borderRadius:type==='bar'?4:0}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8}}}}
+  });
+}
+
+// ── NOTIFICATIONS ──
+function loadNotifs(){
+  const all = getDB('notifications');
+  const mine = all.filter(n=>n.destinataire_id===CU.personnel_id);
+  const unread = mine.filter(n=>n.statut==='Non lue');
+  const cnt = document.getElementById('notif-count');
+  cnt.textContent=unread.length; cnt.style.display=unread.length?'flex':'none';
+  const tico={tache:'✅',performance:'📊',employe_mois:'🏆',proposition:'💡',alerte:'⚠️',info:'ℹ️'};
+  document.getElementById('nlist').innerHTML=mine.length===0
+    ?'<div class="empty"><div class="eico">🔔</div><p>Aucune notification</p></div>'
+    :mine.slice().reverse().map(r=>`<div class="nitem ${r.statut==='Non lue'?'unread':''}" onclick="lireNotif(${r.notification_id},this)">
+      <div class="ntit">${tico[r.type_notif]||'🔔'} ${r.titre}</div>
+      <div class="ndesc">${r.description}</div>
+      <div class="ntime">${r.dateEnvoie||''}</div>
+    </div>`).join('');
+}
+function lireNotif(id,el){
+  const notifs = getDB('notifications');
+  const n = notifs.find(x=>x.notification_id===id);
+  if(n) n.statut='Lue';
+  setDB('notifications',notifs);
+  el.classList.remove('unread');
+  loadNotifs();
+}
+function toutLire(){
+  const notifs = getDB('notifications');
+  notifs.forEach(n=>{ if(n.destinataire_id===CU.personnel_id) n.statut='Lue'; });
+  setDB('notifications',notifs);
+  loadNotifs(); toast('Toutes les notifications lues','ok');
+}
+function toggleNotif(){ document.getElementById('np').classList.toggle('open'); }
+
+// ── DASHBOARD ──
+function loadDashboard(){
+  const el = document.getElementById('pg-dashboard');
+  const r = CU.role;
+  const taches = getDB('taches');
+  const activites = getDB('activites');
+  const personnel = getDB('personnel');
+  const notifs = getDB('notifications').filter(n=>n.destinataire_id===CU.personnel_id&&n.statut==='Non lue');
+  const tp = getDB('telepaiements');
+  const perfs = getDB('performances');
+
+  if(r==='chef_centre'){
+    const nb_pers=personnel.length;
+    const nb_act_cours=activites.filter(a=>a.statut==='En cours').length;
+    const total_tp=tp.reduce((s,t)=>s+t.montant,0);
+    const recou_tp=tp.reduce((s,t)=>s+t.montant_paye,0);
+    const taux=total_tp?Math.round(recou_tp/total_tp*100):0;
+    const nb_taches=taches.length;
+    const nb_ok=taches.filter(t=>t.statut==='Terminee').length;
+
+    const act_statut=[
+      {label:'En cours',count:activites.filter(a=>a.statut==='En cours').length},
+      {label:'Terminée',count:activites.filter(a=>a.statut==='Terminee').length},
+      {label:'Planifiée',count:activites.filter(a=>a.statut==='Planifiee').length},
+    ];
+    const tp_statut=[
+      {label:'Payé',count:tp.filter(t=>t.statut==='Paye').length},
+      {label:'En attente',count:tp.filter(t=>t.statut==='En attente').length},
+      {label:'En retard',count:tp.filter(t=>t.statut==='En retard').length},
+      {label:'Partiel',count:tp.filter(t=>t.statut==='Partiel').length},
+    ];
+
+    el.innerHTML=`<div class="ptitle">⊞ Tableau de bord — Chef de Centre</div>
+    <div class="gstats">
+      <div class="stat"><div class="n">${nb_pers}</div><div class="l">Agents total</div></div>
+      <div class="stat acc"><div class="n">${nb_act_cours}</div><div class="l">Activités en cours</div></div>
+      <div class="stat ok"><div class="n">${fmt(Math.round(recou_tp/1000000))}M F</div><div class="l">Recouvré</div></div>
+      <div class="stat warn"><div class="n">${taux}%</div><div class="l">Taux recouvrement</div></div>
+      <div class="stat"><div class="n">${nb_ok}/${nb_taches}</div><div class="l">Tâches terminées</div></div>
+      <div class="stat err"><div class="n">${notifs.length}</div><div class="l">Notifs non lues</div></div>
+    </div>
+    <div class="grids2">
+      <div class="card"><div class="chead"><h3>Activités par statut</h3></div><div class="cbody"><div class="cht"><canvas id="ch-as"></canvas></div></div></div>
+      <div class="card"><div class="chead"><h3>Télépaiements par statut</h3></div><div class="cbody"><div class="cht"><canvas id="ch-ts"></canvas></div></div></div>
+    </div>`;
+    setTimeout(()=>{mkChart('ch-as',act_statut,'doughnut');mkChart('ch-ts',tp_statut,'doughnut');},50);
+
+  } else if(r==='chef_bureau'){
+    const myPers=personnel.filter(p=>p.bureau_id===CU.bureau_id);
+    const myAct=activites.filter(a=>a.bureau_id===CU.bureau_id);
+    const myAct_ids=myAct.map(a=>a.activite_id);
+    const myTaches=taches.filter(t=>myAct_ids.includes(t.activite_id));
+    const myTP=tp.filter(t=>t.bureau_id===CU.bureau_id);
+
+    el.innerHTML=`<div class="ptitle">⊞ Tableau de bord — Chef de Bureau</div>
+    <div class="gstats">
+      <div class="stat"><div class="n">${myPers.length}</div><div class="l">Personnel du bureau</div></div>
+      <div class="stat acc"><div class="n">${myAct.filter(a=>a.statut==='En cours').length}</div><div class="l">Activités en cours</div></div>
+      <div class="stat ok"><div class="n">${myTaches.filter(t=>t.statut==='Terminee').length}/${myTaches.length}</div><div class="l">Tâches terminées</div></div>
+      <div class="stat warn"><div class="n">${notifs.length}</div><div class="l">Notifs non lues</div></div>
+    </div>
+    <div class="card"><div class="chead"><h3>Activités récentes</h3><button class="btn bo bsm" onclick="showPage('activites')">Tout voir</button></div><div class="cbody">
+    ${myAct.slice(0,5).map(a=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f3f8">
+      <div><div style="font-weight:600;font-size:.85rem">${a.nom}</div><div style="font-size:.74rem;color:var(--mut)">${a.type_activite} · ${a.dateFin}</div></div>${badge(a.statut)}</div>`).join('')||'<div class="empty"><p>Aucune activité</p></div>'}
+    </div></div>`;
+
+  } else if(r==='controleur'){
+    const subAgents=personnel.filter(p=>p.superieur_id===CU.personnel_id);
+    const affects=getDB('affectations');
+    const myTachesIds=[...new Set(affects.filter(a=>subAgents.map(s=>s.personnel_id).includes(a.personnel_id)).map(a=>a.tache_id))];
+    const myTaches=taches.filter(t=>myTachesIds.includes(t.tache_id));
+
+    el.innerHTML=`<div class="ptitle">⊞ Tableau de bord — Contrôleur</div>
+    <div class="gstats">
+      <div class="stat"><div class="n">${subAgents.length}</div><div class="l">Agents supervisés</div></div>
+      <div class="stat acc"><div class="n">${myTaches.length}</div><div class="l">Tâches assignées</div></div>
+      <div class="stat warn"><div class="n">${notifs.length}</div><div class="l">Notifs non lues</div></div>
+    </div>
+    <div class="card"><div class="chead"><h3>Mes tâches supervisées</h3></div><div class="cbody">
+    ${myTaches.slice(0,6).map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f3f8">
+      <div><div style="font-weight:600;font-size:.85rem">${t.libelle}</div><div style="font-size:.74rem;color:var(--mut)">Échéance: ${t.dateFin}</div></div>${badge(t.statut)}</div>`).join('')||'<div class="empty"><p>Aucune tâche</p></div>'}
+    </div></div>`;
+
+  } else {
+    const affectsMine=getDB('affectations').filter(a=>a.personnel_id===CU.personnel_id);
+    const myTachesIds=affectsMine.map(a=>a.tache_id);
+    const myTaches=taches.filter(t=>myTachesIds.includes(t.tache_id));
+    const myPerf=perfs.filter(p=>p.personnel_id===CU.personnel_id).slice(-1)[0];
+    const ems=getDB('employe_mois');
+    const currEM=ems.find(e=>e.personnel_id===CU.personnel_id&&e.annee===2025);
+
+    el.innerHTML=`<div class="ptitle">⊞ Mon espace — Agent</div>
+    ${currEM?`<div class="em-card" style="margin-bottom:18px"><div class="em-month">🏆 Employé du mois — ${MFR[currEM.mois]} ${currEM.annee}</div><div class="em-name">${CU.prenom||''} ${CU.nom}</div></div>`:''}
+    <div class="gstats">
+      <div class="stat"><div class="n">${myTaches.length}</div><div class="l">Tâches assignées</div></div>
+      <div class="stat ok"><div class="n">${myTaches.filter(t=>t.statut==='Terminee').length}</div><div class="l">Terminées</div></div>
+      <div class="stat warn"><div class="n">${notifs.length}</div><div class="l">Notifs non lues</div></div>
+      ${myPerf?`<div class="stat acc"><div class="n">${myPerf.note}/20</div><div class="l">Dernière note</div></div>`:''}
+    </div>
+    <div class="card"><div class="chead"><h3>Mes tâches en cours</h3></div><div class="cbody">
+    ${myTaches.filter(t=>t.statut!=='Terminee').map(t=>`<div class="${t.priorite==='Haute'?'prio-H':t.priorite==='Urgente'?'prio-U':''}" style="display:flex;justify-content:space-between;align-items:center;padding:11px 8px;border-bottom:1px solid #f0f3f8">
+      <div><div style="font-size:.86rem;font-weight:600">${t.libelle}</div><div style="font-size:.74rem;color:var(--mut)">Échéance : <b>${t.dateFin}</b></div></div>
+      <div class="acts">${badge(t.statut)}<button class="btn bo bsm" onclick="majStatut(${t.tache_id})">✏️</button></div></div>`).join('')||'<div class="empty"><p>Aucune tâche en cours</p></div>'}
+    </div></div>`;
+  }
+}
+
+// ── BUREAUX ──
+function loadBureaux(){
+  const bureaux = getDB('bureaux');
+  const personnel = getDB('personnel');
+  const activites = getDB('activites');
+  document.getElementById('pg-bureaux').innerHTML=`
+    <div class="ptitle">🏢 Bureaux ${CU.role==='chef_centre'?'<button class="btn ba bsm" onclick="addBureau()">+ Ajouter</button>':''}</div>
+    <div class="card"><table><thead><tr><th>Code</th><th>Nom</th><th>Description</th><th>Personnel</th><th>Activités</th></tr></thead><tbody>
+    ${bureaux.map(b=>`<tr><td><b>${b.code||'—'}</b></td><td><b>${b.nom}</b></td><td style="font-size:.78rem;max-width:220px">${b.description||'—'}</td>
+    <td>${personnel.filter(p=>p.bureau_id===b.bureau_id).length}</td>
+    <td>${activites.filter(a=>a.bureau_id===b.bureau_id).length}</td></tr>`).join('')}
+    </tbody></table></div>`;
+}
+function addBureau(){
+  const n=prompt('Nom du bureau :'); if(!n) return;
+  const c=prompt('Code (ex: GCS) :');
+  const bureaux=getDB('bureaux');
+  bureaux.push({bureau_id:nextId('bureau')||Date.now(), nom:n, code:c||'', description:''});
+  setDB('bureaux',bureaux); loadBureaux(); toast('Bureau ajouté','ok'); populateSels();
+}
+
+// ── ACTIVITÉS ──
+function loadActivites(){
+  const rows = getDB('activites');
+  const taches = getDB('taches');
+  const bureaux = getDB('bureaux');
+  const ce = ['chef_centre','chef_bureau'].includes(CU.role);
+  const myRows = CU.role==='chef_bureau'?rows.filter(r=>r.bureau_id===CU.bureau_id):rows;
+  document.getElementById('pg-activites').innerHTML=`
+    <div class="ptitle">📋 Activités ${ce?'<button class="btn ba bsm" onclick="om(\'mo-activite\')">+ Nouvelle</button>':''}</div>
+    <div style="margin-bottom:10px"><input class="srch" id="srch-act" placeholder="🔍 Rechercher activité..." oninput="srchFilter('srch-act','#tbl-act tbody')"></div>
+    <div class="card"><table id="tbl-act"><thead><tr><th>Nom</th><th>Type</th><th>Bureau</th><th>Début</th><th>Fin</th><th>Statut</th><th>Avancement</th><th>Actions</th></tr></thead><tbody>
+    ${myRows.map(r=>{
+      const bur=bureaux.find(b=>b.bureau_id===r.bureau_id);
+      const myT=taches.filter(t=>t.activite_id===r.activite_id);
+      const myOk=myT.filter(t=>t.statut==='Terminee').length;
+      return `<tr><td><b>${r.nom}</b></td><td>${r.type_activite||'—'}</td><td>${bur?bur.nom:'—'}</td>
+      <td>${r.dateDebut||'—'}</td><td>${r.dateFin||'—'}</td><td>${badge(r.statut)}</td>
+      <td><div style="font-size:.75rem;color:var(--mut)">${myOk}/${myT.length} tâches</div>
+       <div class="pgbar"><div class="pgfill" style="width:${myT.length?pct(myOk,myT.length):0}%"></div></div></td>
+      <td class="acts">
+       <button class="btn bo bsm" onclick="showGantt(${r.activite_id},'${r.nom.replace(/'/g,"\\'")}')">📊 Gantt</button>
+       ${ce?`<button class="btn bd" onclick="delAct(${r.activite_id})">🗑</button>`:''}
+      </td></tr>`;
+    }).join('')||'<tr><td colspan="8"><div class="empty"><p>Aucune activité</p></div></td></tr>'}
+    </tbody></table></div>`;
+}
+function saveActivite(){
+  const acts=getDB('activites');
+  acts.push({activite_id:nextId('activite'), nom:document.getElementById('ma-n').value, type_activite:document.getElementById('ma-t').value, description:document.getElementById('ma-desc').value, dateDebut:document.getElementById('ma-d').value, dateFin:document.getElementById('ma-f').value, statut:'Planifiee', bureau_id:parseInt(document.getElementById('ma-b').value)||CU.bureau_id, propose_par:CU.personnel_id, validee_par:null});
+  setDB('activites',acts); cm('mo-activite'); loadActivites(); populateSels(); toast('✅ Activité créée','ok');
+}
+function delAct(id){
+  if(!confirm('Supprimer cette activité ?')) return;
+  setDB('activites',getDB('activites').filter(a=>a.activite_id!==id)); loadActivites(); toast('Activité supprimée','ok');
+}
+function showGantt(aid,nom){
+  const taches=getDB('taches').filter(t=>t.activite_id===aid);
+  document.getElementById('gantt-t').textContent='📊 Gantt — '+nom;
+  if(!taches.length){document.getElementById('gantt-c').innerHTML='<div class="empty"><p>Aucune tâche</p></div>';om('mo-gantt');return;}
+  const dates=taches.flatMap(t=>[t.dateDebut,t.dateFin]).filter(Boolean).sort();
+  const s0=new Date(dates[0]),s1=new Date(dates[dates.length-1]);
+  const tot=Math.max(1,(s1-s0)/86400000);
+  const sc={Terminee:'#22a06b','En cours':'#e8a020','Non demarre':'#1a3a5c','En retard':'#d93025'};
+  let html=`<div style="font-size:.72rem;color:var(--mut);display:flex;justify-content:space-between;margin-bottom:6px"><span>${dates[0]}</span><span>${dates[dates.length-1]}</span></div>`;
+  taches.forEach(t=>{
+    const ts=new Date(t.dateDebut),tf=new Date(t.dateFin);
+    const l=Math.max(0,(ts-s0)/86400000/tot*100);
+    const w=Math.max(2,(tf-ts)/86400000/tot*100);
+    html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+     <div style="min-width:130px;font-size:.76rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.libelle}">${t.libelle}</div>
+     <div style="flex:1;background:#e8edf5;border-radius:4px;height:20px;position:relative">
+      <div style="position:absolute;left:${l}%;width:${w}%;height:100%;border-radius:4px;background:${sc[t.statut]||'#888'}" title="${t.statut}"></div></div>
+     ${badge(t.statut)}</div>`;
+  });
+  document.getElementById('gantt-c').innerHTML=html; om('mo-gantt');
+}
+
+// ── TÂCHES ──
+function loadTaches(){
+  const taches=getDB('taches');
+  const activites=getDB('activites');
+  const affectations=getDB('affectations');
+  const personnel=getDB('personnel');
+  const cm2=['chef_bureau','controleur'].includes(CU.role);
+  const isAg=CU.role==='agent';
+
+  // Filter taches visible
+  let myT = taches;
+  if(CU.role==='chef_bureau'){
+    const myActIds=activites.filter(a=>a.bureau_id===CU.bureau_id).map(a=>a.activite_id);
+    myT=taches.filter(t=>myActIds.includes(t.activite_id));
+  } else if(CU.role==='controleur'){
+    const subIds=personnel.filter(p=>p.superieur_id===CU.personnel_id).map(p=>p.personnel_id);
+    const myAffIds=[...new Set(affectations.filter(a=>subIds.includes(a.personnel_id)).map(a=>a.tache_id))];
+    myT=taches.filter(t=>myAffIds.includes(t.tache_id));
+  } else if(CU.role==='agent'){
+    const myAffIds=affectations.filter(a=>a.personnel_id===CU.personnel_id).map(a=>a.tache_id);
+    myT=taches.filter(t=>myAffIds.includes(t.tache_id));
+  }
+
+  document.getElementById('pg-taches').innerHTML=`
+    <div class="ptitle">✅ Tâches ${cm2?'<button class="btn ba bsm" onclick="om(\'mo-tache\')">+ Nouvelle</button>':''}</div>
+    <div class="card"><table><thead><tr><th>Libellé</th><th>Activité</th><th>Début</th><th>Échéance</th><th>Priorité</th><th>Statut</th><th>Agents</th><th>Actions</th></tr></thead><tbody>
+    ${myT.map(r=>{
+      const act=activites.find(a=>a.activite_id===r.activite_id);
+      const agentsIds=affectations.filter(a=>a.tache_id===r.tache_id&&a.actif).map(a=>a.personnel_id);
+      const agentsNames=agentsIds.map(id=>{const p=personnel.find(x=>x.personnel_id===id);return p?(p.prenom?p.prenom+' ':'')+p.nom:'';}).filter(Boolean).join(', ');
+      return `<tr class="${r.priorite==='Haute'?'prio-H':r.priorite==='Urgente'?'prio-U':''}">
+        <td><b>${r.libelle}</b></td><td style="font-size:.78rem">${act?act.nom:'—'}</td>
+        <td>${r.dateDebut||'—'}</td><td><b>${r.dateFin||'—'}</b></td>
+        <td>${badge(r.priorite)}</td><td>${badge(r.statut)}</td>
+        <td style="font-size:.76rem;max-width:120px">${agentsNames||'—'}</td>
+        <td class="acts">
+         ${cm2?`<button class="btn bo bsm" onclick="openAff(${r.tache_id},'${r.libelle.replace(/'/g,"\\'")}')">👤</button><button class="btn bo bsm" onclick="showHist(${r.tache_id})">📜</button><button class="btn bd" onclick="delTache(${r.tache_id})">🗑</button>`:''}
+         ${isAg?`<button class="btn bo bsm" onclick="majStatut(${r.tache_id})">✏️ Statut</button>`:''}
+        </td></tr>`;
+    }).join('')||'<tr><td colspan="8"><div class="empty"><p>Aucune tâche</p></div></td></tr>'}
+    </tbody></table></div>`;
+}
+function saveTache(){
+  const t={tache_id:nextId('tache'), libelle:document.getElementById('mt-l').value, description:document.getElementById('mt-desc').value, dateDebut:document.getElementById('mt-d').value, dateFin:document.getElementById('mt-f').value, priorite:document.getElementById('mt-p').value, statut:document.getElementById('mt-s').value, activite_id:parseInt(document.getElementById('mt-a').value)};
+  const taches=getDB('taches'); taches.push(t); setDB('taches',taches);
+  cm('mo-tache'); loadTaches(); toast('✅ Tâche créée','ok');
+}
+function delTache(id){
+  if(!confirm('Supprimer ?')) return;
+  setDB('taches',getDB('taches').filter(t=>t.tache_id!==id)); loadTaches();
+}
+function majStatut(tid){
+  const s=prompt('Nouveau statut :\n- Non demarre\n- En cours\n- Terminee\n- En retard'); if(!s) return;
+  const t=getDB('taches'); const idx=t.findIndex(x=>x.tache_id===tid);
+  if(idx>=0){t[idx].statut=s;setDB('taches',t);} loadTaches(); toast('Statut mis à jour','ok');
+}
+
+// ── AFFECTATIONS ──
+function loadAffecter(){
+  const taches=getDB('taches');
+  const activites=getDB('activites');
+  const affectations=getDB('affectations');
+  const personnel=getDB('personnel');
+  let myT=taches;
+  if(CU.role==='chef_bureau'){
+    const myActIds=activites.filter(a=>a.bureau_id===CU.bureau_id).map(a=>a.activite_id);
+    myT=taches.filter(t=>myActIds.includes(t.activite_id));
+  } else if(CU.role==='controleur'){
+    const subIds=personnel.filter(p=>p.superieur_id===CU.personnel_id).map(p=>p.personnel_id);
+    const myAffIds=[...new Set(affectations.filter(a=>subIds.includes(a.personnel_id)).map(a=>a.tache_id))];
+    myT=taches.filter(t=>myAffIds.includes(t.tache_id));
+  }
+  document.getElementById('pg-affecter').innerHTML=`
+    <div class="ptitle">👤 Gestion des affectations</div>
+    <div class="card"><table><thead><tr><th>Tâche</th><th>Activité</th><th>Échéance</th><th>Statut</th><th>Agents affectés</th><th>Actions</th></tr></thead><tbody>
+    ${myT.map(r=>{
+      const act=activites.find(a=>a.activite_id===r.activite_id);
+      const agIds=affectations.filter(a=>a.tache_id===r.tache_id&&a.actif).map(a=>a.personnel_id);
+      const agNames=agIds.map(id=>{const p=personnel.find(x=>x.personnel_id===id);return p?persName(p):'';}).filter(Boolean).join(', ');
+      return `<tr><td><b>${r.libelle}</b></td><td>${act?act.nom:'—'}</td><td>${r.dateFin||'—'}</td>
+        <td>${badge(r.statut)}</td><td style="font-size:.76rem">${agNames||'<em style="color:var(--mut)">Aucun</em>'}</td>
+        <td class="acts"><button class="btn bp bsm" onclick="openAff(${r.tache_id},'${r.libelle.replace(/'/g,"\\'")}')">+ Affecter</button><button class="btn bo bsm" onclick="showHist(${r.tache_id})">📜 Historique</button></td></tr>`;
+    }).join('')}
+    </tbody></table></div>`;
+}
+function openAff(tid,label){
+  document.getElementById('aff-tid').value=tid;
+  document.getElementById('aff-tl').value=label||'Tâche #'+tid;
+  om('mo-affect');
+}
+function saveAffect(){
+  const tid=parseInt(document.getElementById('aff-tid').value);
+  const pid=parseInt(document.getElementById('aff-pid').value);
+  const role=document.getElementById('aff-r').value;
+  if(!pid){toast('Sélectionnez un agent','err');return;}
+  const aff=getDB('affectations');
+  aff.push({affect_id:nextId('affect'), tache_id:tid, personnel_id:pid, role_affect:role, date_affectation:today(), actif:1, assigne_par:CU.personnel_id});
+  setDB('affectations',aff);
+  addNotif('Nouvelle tâche assignée','Vous avez une nouvelle tâche. Consultez votre tableau de bord.','tache',pid,tid);
+  cm('mo-affect'); loadNotifs(); toast('✅ Agent affecté — Notification envoyée','ok');
+}
+function showHist(tid){
+  const aff=getDB('affectations').filter(a=>a.tache_id===tid);
+  const pers=getDB('personnel');
+  document.getElementById('hist-c').innerHTML=!aff.length?'<div class="empty"><p>Aucune affectation</p></div>':
+    `<table><thead><tr><th>Agent</th><th>Rôle</th><th>Affecté le</th><th>Actif</th></tr></thead><tbody>
+    ${aff.map(r=>{const p=pers.find(x=>x.personnel_id===r.personnel_id);return `<tr><td>${p?persName(p):'—'}</td><td>${r.role_affect}</td><td>${r.date_affectation||'—'}</td><td>${r.actif?'✅':'❌'}</td></tr>`;}).join('')}</tbody></table>`;
+  om('mo-hist');
+}
+
+// ── PERSONNEL ──
+function loadPersonnel(){
+  const rows=getDB('personnel');
+  const bureaux=getDB('bureaux');
+  const ce=['chef_centre','chef_bureau'].includes(CU.role);
+  const myRows=CU.role==='chef_bureau'?rows.filter(r=>r.bureau_id===CU.bureau_id):rows;
+  document.getElementById('pg-personnel').innerHTML=`
+    <div class="ptitle">👥 Personnel ${ce?'<button class="btn ba bsm" onclick="om(\'mo-personnel\')">+ Ajouter</button>':''}</div>
+    <div style="margin-bottom:10px"><input class="srch" id="srch-pers" placeholder="🔍 Rechercher personnel..." oninput="srchFilter('srch-pers','#tbl-pers tbody')"></div>
+    <div class="card"><table id="tbl-pers"><thead><tr><th>Nom</th><th>Rôle</th><th>Fonction</th><th>Bureau</th><th>Email</th><th>Tél.</th><th>Depuis</th><th>Actions</th></tr></thead><tbody>
+    ${myRows.map(r=>{
+      const bur=bureaux.find(b=>b.bureau_id===r.bureau_id);
+      return `<tr><td><div style="display:flex;align-items:center;gap:8px">
+        ${r.photo_profil?`<img src="${r.photo_profil}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`${av(r.nom,r.prenom,r.role)}`}<b>${r.nom} ${r.prenom||''}</b></div></td>
+        <td><span class="role-chip rc-${r.role}">${RFR[r.role]||r.role}</span></td>
+        <td>${r.fonction||'—'}</td><td>${bur?bur.nom:'—'}</td><td style="font-size:.76rem">${r.email}</td><td>${r.telephone||'—'}</td><td>${r.annee_integration||'—'}</td>
+        <td class="acts">
+         <button class="btn bsuc bsm" onclick="openNoter(${r.personnel_id},'${(r.nom+' '+(r.prenom||'')).trim().replace(/'/g,"\\'")}')">⭐ Éval.</button>
+         <button class="btn ba bsm" onclick="openEM2(${r.personnel_id},'${(r.nom+' '+(r.prenom||'')).trim().replace(/'/g,"\\'")}')">🏆</button>
+         ${ce?`<button class="btn bd" onclick="delPers(${r.personnel_id})">🗑</button>`:''}
+        </td></tr>`;
+    }).join('')}
+    </tbody></table></div>`;
+}
+function savePersonnel(){
+  const nom=document.getElementById('mp-n').value.trim();
+  const prenom=document.getElementById('mp-pr').value.trim();
+  if(!nom){toast('Le nom est requis','err');return;}
+  const email=`${(prenom||nom).toLowerCase().replace(/\s+/g,'.')}.${nom.toLowerCase().replace(/\s+/g,'.')}@terrafisc.sn`;
+  const pwd=Math.random().toString(36).substring(2,10)+'A1!';
+  const pers=getDB('personnel');
+  const np={personnel_id:nextId('personnel'), nom, prenom, email, mot_de_passe:h('admin123'), fonction:document.getElementById('mp-f').value, role:document.getElementById('mp-r').value, bureau_id:parseInt(document.getElementById('mp-b').value)||CU.bureau_id, superieur_id:parseInt(document.getElementById('mp-s').value)||null, telephone:document.getElementById('mp-t').value, dateNaissance:document.getElementById('mp-dob').value, annee_integration:new Date().getFullYear(), adresse:'', photo_profil:''};
+  pers.push(np); setDB('personnel',pers);
+  cm('mo-personnel'); loadPersonnel(); populateSels();
+  toast(`✅ Personnel ajouté — Email: ${email} | MDP: admin123`,'ok');
+}
+function delPers(id){
+  if(!confirm('Supprimer ce membre du personnel ?')) return;
+  setDB('personnel',getDB('personnel').filter(p=>p.personnel_id!==id)); loadPersonnel();
+}
+
+// ── PERFORMANCES ──
+function loadPerformances(){
+  const rows=getDB('performances');
+  const pers=getDB('personnel');
+  const mine=CU.role==='agent'?rows.filter(r=>r.personnel_id===CU.personnel_id):
+    CU.role==='controleur'?rows.filter(r=>pers.find(p=>p.personnel_id===r.personnel_id&&p.superieur_id===CU.personnel_id)):rows;
+  const ce=['chef_bureau','controleur'].includes(CU.role);
+  document.getElementById('pg-performances').innerHTML=`
+    <div class="ptitle">📊 Performances ${ce?'<button class="btn ba bsm" onclick="openNoterModal()">+ Évaluer</button>':''}</div>
+    <div class="card"><table><thead><tr><th>Agent</th><th>Note</th><th>Efficacité</th><th>Prime</th><th>Commentaire</th><th>Mois</th>${CU.role!=='agent'?'<th>Évaluateur</th>':''}</tr></thead><tbody>
+    ${mine.map(r=>{
+      const p=pers.find(x=>x.personnel_id===r.personnel_id);
+      const ev=pers.find(x=>x.personnel_id===r.evalue_par);
+      return `<tr><td><b>${p?persName(p):'—'}</b></td>
+        <td><b style="font-size:1rem;color:${r.note>=15?'#22a06b':r.note>=10?'#e07b28':'#d93025'}">${r.note}</b>/20</td>
+        <td><div style="display:flex;align-items:center;gap:7px"><div class="pgbar" style="width:70px"><div class="pgfill" style="width:${r.efficacite||0}%;background:${r.efficacite>=75?'#22a06b':r.efficacite>=50?'#e07b28':'#d93025'}"></div></div>${r.efficacite||0}%</div></td>
+        <td>${r.prime||'—'}</td><td style="max-width:200px;font-size:.78rem">${r.commentaire||'—'}</td>
+        <td>${r.mois?MFR[r.mois]+' '+r.annee:r.date_eval||'—'}</td>
+        ${CU.role!=='agent'?`<td>${ev?persName(ev):'—'}</td>`:''}</tr>`;
+    }).join('')||'<tr><td colspan="7"><div class="empty"><p>Aucune évaluation</p></div></td></tr>'}
+    </tbody></table></div>`;
+}
+function openNoterModal(){ document.getElementById('n-pid').value=''; document.getElementById('n-nom').value=''; om('mo-noter'); }
+function openNoter(pid,nom){ document.getElementById('n-pid').value=pid; document.getElementById('n-nom').value=nom; om('mo-noter'); }
+function saveNote(){
+  const pid=parseInt(document.getElementById('n-pid').value); if(!pid){toast('Sélectionnez un agent','err');return;}
+  if(pid===CU.personnel_id){toast('Vous ne pouvez pas vous auto-évaluer','err');return;}
+  const now=new Date();
+  const perf={performance_id:nextId('perf'), efficacite:parseInt(document.getElementById('n-eff').value), note:parseInt(document.getElementById('n-note').value), prime:document.getElementById('n-prime').value, commentaire:document.getElementById('n-comm').value, personnel_id:pid, evalue_par:CU.personnel_id, date_eval:today(), mois:now.getMonth()+1, annee:now.getFullYear()};
+  const perfs=getDB('performances'); perfs.push(perf); setDB('performances',perfs);
+  addNotif('Évaluation de performance',`Vous avez reçu une nouvelle évaluation. Note : ${perf.note}/20`,'performance',pid);
+  cm('mo-noter'); loadPerformances(); loadNotifs(); toast('✅ Évaluation enregistrée','ok');
+}
+
+// ── EMPLOYÉ DU MOIS ──
+function loadEmployeMois(){
+  const ems=getDB('employe_mois');
+  const pers=getDB('personnel');
+  const bureaux=getDB('bureaux');
+  const ce=['chef_centre','chef_bureau'].includes(CU.role);
+  document.getElementById('pg-employe-mois').innerHTML=`
+    <div class="ptitle">🏆 Employé du mois ${ce?'<button class="btn ba bsm" onclick="om(\'mo-em\')">+ Désigner</button>':''}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:20px">
+    ${ems.slice().reverse().map(em=>{
+      const p=pers.find(x=>x.personnel_id===em.personnel_id);
+      const bur=p?bureaux.find(b=>b.bureau_id===p.bureau_id):null;
+      const des=pers.find(x=>x.personnel_id===em.designe_par);
+      return `<div class="em-card">
+        <div class="em-month">${MFR[em.mois]} ${em.annee}</div>
+        <div class="em-name">${p?persName(p):'—'}</div>
+        <div class="em-bureau">${bur?bur.nom:'—'} · ${p?p.fonction||'':''}</div>
+        <div class="em-note" style="margin-top:8px;font-size:.78rem"><b>Note : ${em.note_finale}/20</b></div>
+        <div class="em-note" style="margin-top:4px;font-size:.76rem;opacity:.85">${em.motif||''}</div>
+        <div class="em-note" style="margin-top:6px;font-size:.7rem;opacity:.7">Désigné par : ${des?persName(des):'—'}</div>
+      </div>`;
+    }).join('')||'<p style="color:var(--mut);grid-column:1/-1">Aucune désignation pour l\'instant.</p>'}
+    </div>`;
+}
+function openEM2(pid,nom){
+  document.getElementById('em-pid-sel').value=pid;
+  document.getElementById('em-motif').value='';
+  om('mo-em');
+}
+function saveEM(){
+  const pid=parseInt(document.getElementById('em-pid-sel').value);
+  if(!pid){toast('Sélectionnez un agent','err');return;}
+  const ems=getDB('employe_mois');
+  const mois=parseInt(document.getElementById('em-mois').value);
+  const annee=parseInt(document.getElementById('em-annee').value);
+  if(ems.find(e=>e.mois===mois&&e.annee===annee)){toast('Employé du mois déjà désigné pour ce mois','err');return;}
+  ems.push({em_id:nextId('em'), personnel_id:pid, mois, annee, note_finale:parseFloat(document.getElementById('em-note').value)||0, motif:document.getElementById('em-motif').value, designe_par:CU.personnel_id, date_designation:today()});
+  setDB('employe_mois',ems);
+  addNotif(`Employé du mois — ${MFR[mois]} ${annee}`,`Félicitations ! Vous êtes désigné Employé du mois de ${MFR[mois]} ${annee}.`,'employe_mois',pid);
+  cm('mo-em'); loadEmployeMois(); loadNotifs(); toast('🏆 Employé du mois désigné !','ok');
+}
+
+// ── TÉLÉPAIEMENTS ──
+function loadTelepaiement(){
+  const rows=getDB('telepaiements');
+  const bureaux=getDB('bureaux');
+  const total=rows.reduce((s,t)=>s+t.montant,0);
+  const paye=rows.reduce((s,t)=>s+t.montant_paye,0);
+  const taux=total?Math.round(paye/total*100):0;
+
+  const par_statut=[...new Set(rows.map(r=>r.statut))].map(s=>({label:s,count:rows.filter(r=>r.statut===s).length}));
+  const typesMap={};
+  rows.forEach(r=>{typesMap[r.type_impot]=(typesMap[r.type_impot]||0)+r.montant/1000000;});
+  const par_type=Object.entries(typesMap).map(([k,v])=>({label:k,count:Math.round(v)}));
+
+  document.getElementById('pg-telepaiement').innerHTML=`
+    <div class="ptitle">💳 Télépaiements <button class="btn ba bsm" onclick="om('mo-tp')">+ Nouveau</button></div>
+    <div class="gstats" style="margin-bottom:16px">
+      <div class="stat"><div class="n">${rows.length}</div><div class="l">Dossiers</div></div>
+      <div class="stat ok"><div class="n">${fmt(Math.round(total/1000000))}M F</div><div class="l">Montant attendu</div></div>
+      <div class="stat acc"><div class="n">${fmt(Math.round(paye/1000000))}M F</div><div class="l">Montant recouvré</div></div>
+      <div class="stat warn"><div class="n">${taux}%</div><div class="l">Taux recouvrement</div></div>
+    </div>
+    <div class="grids2" style="margin-bottom:16px">
+      <div class="card"><div class="chead"><h3>Répartition par statut</h3></div><div class="cbody"><div class="cht"><canvas id="ch-tp-s"></canvas></div></div></div>
+      <div class="card"><div class="chead"><h3>Par type d'impôt (Millions FCFA)</h3></div><div class="cbody"><div class="cht"><canvas id="ch-tp-t"></canvas></div></div></div>
+    </div>
+    <div style="margin-bottom:10px"><input class="srch" id="srch-tp" placeholder="🔍 Rechercher télépaiement, contribuable..." oninput="srchFilter('srch-tp','#tbl-tp tbody')"></div>
+    <div class="card"><table id="tbl-tp"><thead><tr><th>Référence</th><th>Contribuable</th><th>NIF</th><th>Type impôt</th><th>Montant dû</th><th>Reçu</th><th>Statut</th><th>Échéance</th><th>Bureau</th><th>Actions</th></tr></thead><tbody>
+    ${rows.map(r=>{
+      const bur=bureaux.find(b=>b.bureau_id===r.bureau_id);
+      return `<tr>
+        <td><b>${r.reference}</b></td><td>${r.contribuable_nom}</td><td style="font-size:.76rem">${r.contribuable_nif||'—'}</td>
+        <td style="font-size:.78rem">${r.type_impot}</td><td><b>${fmt(r.montant)}</b></td>
+        <td class="tp-statut-${r.statut==='Paye'?'paye':r.statut==='En retard'?'retard':'partiel'}">${fmt(r.montant_paye)}</td>
+        <td>${badge(r.statut)}</td><td>${r.date_echeance||'—'}</td><td style="font-size:.76rem">${bur?bur.nom:'—'}</td>
+        <td class="acts"><button class="btn bp bsm" onclick="openTPUpdate(${r.tp_id},${r.montant},'${r.statut}')">✏️ MàJ</button></td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="10"><div class="empty"><p>Aucun dossier</p></div></td></tr>'}
+    </tbody></table></div>`;
+  setTimeout(()=>{ mkChart('ch-tp-s',par_statut,'doughnut'); mkChart('ch-tp-t',par_type,'bar'); },50);
+}
+function saveTP(){
+  const tp=getDB('telepaiements');
+  const ref='TP'+new Date().getFullYear()+'-'+String(tp.length+1).padStart(3,'0');
+  tp.push({tp_id:nextId('tp'), reference:ref, contribuable_nom:document.getElementById('tp-cn').value, contribuable_nif:document.getElementById('tp-nif').value, type_impot:document.getElementById('tp-type').value, montant:parseFloat(document.getElementById('tp-mt').value)||0, montant_paye:0, statut:'En attente', mode_paiement:'', date_echeance:document.getElementById('tp-ech').value, date_paiement:'', bureau_id:parseInt(document.getElementById('tp-b').value)||CU.bureau_id, agent_id:CU.personnel_id, notes:document.getElementById('tp-notes').value});
+  setDB('telepaiements',tp); cm('mo-tp'); loadTelepaiement(); toast(`✅ Télépaiement créé — Réf: ${ref}`,'ok');
+}
+function openTPUpdate(id,montant,statut){
+  document.getElementById('tpu-id').value=id;
+  document.getElementById('tpu-mt').value=montant;
+  document.getElementById('tpu-statut').value=statut==='En attente'?'Partiel':statut;
+  om('mo-tp-update');
+}
+function saveTPUpdate(){
+  const id=parseInt(document.getElementById('tpu-id').value);
+  const tp=getDB('telepaiements'); const idx=tp.findIndex(t=>t.tp_id===id);
+  if(idx>=0){
+    tp[idx].statut=document.getElementById('tpu-statut').value;
+    tp[idx].montant_paye=parseFloat(document.getElementById('tpu-mt').value)||0;
+    tp[idx].mode_paiement=document.getElementById('tpu-mode').value;
+    tp[idx].notes=document.getElementById('tpu-notes').value;
+    if(tp[idx].statut==='Paye') tp[idx].date_paiement=today();
+    setDB('telepaiements',tp);
+  }
+  cm('mo-tp-update'); loadTelepaiement(); toast('✅ Paiement mis à jour','ok');
+}
+
+// ── SIGNALEMENTS ──
+function loadSignalements(){
+  const rows=getDB('signalements');
+  const pers=getDB('personnel');
+  const taches=getDB('taches');
+  const isN=['chef_centre','chef_bureau','controleur'].includes(CU.role);
+  const mine=isN?rows:rows.filter(r=>r.personnel_id===CU.personnel_id);
+  document.getElementById('pg-signalements').innerHTML=`
+    <div class="ptitle">⚠️ Signalements <button class="btn ba bsm" onclick="om('mo-signal')">+ Signaler</button></div>
+    <div class="card"><table><thead><tr><th>Description</th>${isN?'<th>Auteur</th>':''}<th>Tâche</th><th>Date</th><th>Statut</th>${isN?'<th>Actions</th>':''}</tr></thead><tbody>
+    ${mine.map(r=>{
+      const auteur=pers.find(p=>p.personnel_id===r.personnel_id);
+      const tache=taches.find(t=>t.tache_id===r.tache_id);
+      return `<tr><td style="max-width:220px">${r.description}</td>
+        ${isN?`<td>${auteur?persName(auteur):'—'}</td>`:''}
+        <td>${tache?tache.libelle:'—'}</td><td>${r.dateEnvoie||'—'}</td><td>${badge(r.statut)}</td>
+        ${isN&&r.statut==='Ouvert'?`<td><button class="btn bsuc bsm" onclick="traiterSignal(${r.signalement_id})">✅ Traiter</button></td>`:(isN?'<td>—</td>':'')}
+      </tr>`;
+    }).join('')||'<tr><td colspan="6"><div class="empty"><p>Aucun signalement</p></div></td></tr>'}
+    </tbody></table></div>`;
+}
+function saveSignal(){
+  const desc=document.getElementById('sg-d').value.trim(); if(!desc){toast('Description requise','err');return;}
+  const sigs=getDB('signalements');
+  const sup=getDB('personnel').find(p=>p.personnel_id===CU.superieur_id);
+  sigs.push({signalement_id:nextId('signal'), description:desc, dateEnvoie:today(), statut:'Ouvert', reponse:'', personnel_id:CU.personnel_id, tache_id:parseInt(document.getElementById('sg-t').value)||null, destine_a:CU.superieur_id||null});
+  setDB('signalements',sigs);
+  if(CU.superieur_id) addNotif('Nouveau signalement','Un agent a soumis un signalement nécessitant votre attention.','alerte',CU.superieur_id);
+  cm('mo-signal'); loadSignalements(); toast('✅ Signalement envoyé au N+1','ok');
+}
+function traiterSignal(id){
+  const rep=prompt('Réponse / action entreprise :');
+  const sigs=getDB('signalements'); const idx=sigs.findIndex(s=>s.signalement_id===id);
+  if(idx>=0){sigs[idx].statut='Traite';sigs[idx].reponse=rep||'';setDB('signalements',sigs);}
+  loadSignalements(); toast('Signalement traité','ok');
+}
+
+// ── PROPOSITIONS ──
+function loadPropositions(){
+  const rows=getDB('propositions');
+  const pers=getDB('personnel');
+  const isN=['chef_centre','chef_bureau'].includes(CU.role);
+  const mine=isN?rows.filter(r=>r.destine_a===CU.personnel_id):rows.filter(r=>r.propose_par===CU.personnel_id);
+  document.getElementById('pg-propositions').innerHTML=`
+    <div class="ptitle">💡 ${isN?'Propositions reçues':'Mes propositions'} ${!isN?'<button class="btn ba bsm" onclick="om(\'mo-prop\')">+ Proposer</button>':''}</div>
+    <div class="card"><table><thead><tr><th>Description</th><th>Type</th>${isN?'<th>Proposé par</th>':'<th>Destinataire</th>'}<th>Date</th><th>Statut</th>${isN?'<th>Actions</th>':''}</tr></thead><tbody>
+    ${mine.map(r=>{
+      const prop=pers.find(p=>p.personnel_id===r.propose_par);
+      const dest=pers.find(p=>p.personnel_id===r.destine_a);
+      return `<tr><td style="max-width:250px">${r.description}</td><td>${r.type_activite}</td>
+        <td>${isN?(prop?persName(prop):'—'):(dest?persName(dest):'—')}</td>
+        <td>${r.date_prop||'—'}</td><td>${badge(r.statut)}</td>
+        ${isN&&r.statut==='En attente'?`<td class="acts"><button class="btn bsuc bsm" onclick="repProp(${r.prop_id},'Acceptee')">✅</button><button class="btn bd" onclick="repProp(${r.prop_id},'Refusee')">✗</button></td>`:(isN?'<td>—</td>':'')}
+      </tr>`;
+    }).join('')||'<tr><td colspan="6"><div class="empty"><p>Aucune proposition</p></div></td></tr>'}
+    </tbody></table></div>`;
+}
+function saveProp(){
+  const desc=document.getElementById('pp-d').value.trim(); if(!desc){toast('Description requise','err');return;}
+  const props=getDB('propositions');
+  props.push({prop_id:nextId('prop'), description:desc, type_activite:document.getElementById('pp-t').value, date_prop:today(), statut:'En attente', propose_par:CU.personnel_id, destine_a:CU.superieur_id||null, commentaire_reponse:''});
+  setDB('propositions',props);
+  if(CU.superieur_id) addNotif('Nouvelle proposition','Un agent a soumis une proposition d\'activité.','proposition',CU.superieur_id);
+  cm('mo-prop'); loadPropositions(); toast('✅ Proposition envoyée au N+1','ok');
+}
+function repProp(id,statut){
+  const c=prompt(statut==='Acceptee'?"Message d'acceptation (optionnel) :":'Motif du refus :');
+  const props=getDB('propositions'); const idx=props.findIndex(p=>p.prop_id===id);
+  if(idx>=0){props[idx].statut=statut;props[idx].commentaire_reponse=c||'';setDB('propositions',props);}
+  const prop=props[idx];
+  if(prop) addNotif(`Proposition ${statut==='Acceptee'?'acceptée':'refusée'}`,`Votre proposition a été ${statut.toLowerCase()}. ${c||''}`,'proposition',prop.propose_par);
+  loadPropositions(); loadNotifs(); toast(`Proposition ${statut.toLowerCase()}`,'ok');
+}
+
+// ── COMPTES-RENDUS ──
+function openCR(tid){ document.getElementById('cr-t').value=tid||''; om('mo-cr'); }
+function loadCR(){
+  const rows=getDB('comptes_rendus');
+  const pers=getDB('personnel');
+  const taches=getDB('taches');
+  const mine=CU.role==='chef_centre'?rows.filter(r=>{const p=pers.find(x=>x.personnel_id===r.personnel_id);return p&&['chef_bureau'].includes(p.role);}):rows.filter(r=>r.personnel_id===CU.personnel_id);
+  document.getElementById('pg-cr').innerHTML=`
+    <div class="ptitle">📄 Comptes-rendus <button class="btn ba bsm" onclick="om('mo-cr')">+ Nouveau</button></div>
+    <div class="card"><table><thead><tr><th>Auteur</th><th>Tâche</th><th>Date</th><th>Statut</th><th>Extrait</th></tr></thead><tbody>
+    ${mine.map(r=>{
+      const p=pers.find(x=>x.personnel_id===r.personnel_id);
+      const t=taches.find(x=>x.tache_id===r.tache_id);
+      return `<tr><td>${p?persName(p):'—'}</td><td>${t?t.libelle:'—'}</td><td>${r.dateRendue||'—'}</td><td>${badge(r.statut)}</td>
+        <td style="max-width:280px;font-size:.78rem">${(r.contenu||'').substring(0,100)}${(r.contenu||'').length>100?'…':''}</td></tr>`;
+    }).join('')||'<tr><td colspan="5"><div class="empty"><p>Aucun compte-rendu</p></div></td></tr>'}
+    </tbody></table></div>`;
+}
+function saveCR(){
+  const contenu=document.getElementById('cr-c').value.trim(); if(!contenu){toast('Contenu requis','err');return;}
+  const crs=getDB('comptes_rendus');
+  crs.push({cr_id:nextId('cr'), dateRendue:today(), contenu, statut:'Soumis', personnel_id:CU.personnel_id, tache_id:parseInt(document.getElementById('cr-t').value)||null});
+  setDB('comptes_rendus',crs);
+  if(CU.superieur_id) addNotif('Nouveau compte-rendu','Un agent a soumis un compte-rendu.','info',CU.superieur_id);
+  cm('mo-cr'); loadCR(); loadNotifs(); toast('✅ Compte-rendu soumis — N+1 notifié','ok');
+}
+
+// ── AVIS ──
+function loadAvis(){
+  const rows=getDB('avis');
+  const pers=getDB('personnel');
+  const bureaux=getDB('bureaux');
+  document.getElementById('pg-avis').innerHTML=`
+    <div class="ptitle">⭐ Avis sur l'application <button class="btn ba bsm" onclick="om('mo-avis')">+ Donner un avis</button></div>
+    <div class="card"><table><thead><tr><th>Agent</th><th>Bureau</th><th>Note</th><th>Commentaire</th><th>Date</th></tr></thead><tbody>
+    ${rows.map(r=>{
+      const p=pers.find(x=>x.personnel_id===r.personnel_id);
+      const bur=p?bureaux.find(b=>b.bureau_id===p.bureau_id):null;
+      return `<tr><td>${p?persName(p):'—'}</td><td>${bur?bur.nom:'—'}</td><td>${stars(r.note)}</td><td>${r.commentaire||'—'}</td><td>${r.dateEnvoie||'—'}</td></tr>`;
+    }).join('')||'<tr><td colspan="5"><div class="empty"><p>Aucun avis</p></div></td></tr>'}
+    </tbody></table></div>`;
+}
+function saveAvis(){
+  const avis=getDB('avis');
+  avis.push({avis_id:nextId('avis'), commentaire:document.getElementById('av-c').value, note:parseInt(document.getElementById('av-n').value)||5, dateEnvoie:today(), personnel_id:CU.personnel_id});
+  setDB('avis',avis); cm('mo-avis'); loadAvis(); toast('✅ Avis soumis. Merci !','ok');
+}
+
+// ── PROFIL ──
+function loadProfil(){
+  const p=getDB('personnel').find(x=>x.personnel_id===CU.personnel_id)||CU;
+  const bur=getDB('bureaux').find(b=>b.bureau_id===p.bureau_id);
+  const photoHtml=p.photo_profil
+    ?`<img src="${p.photo_profil}" style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--acc)">`
+    :`<div style="width:110px;height:110px;border-radius:50%;background:var(--p);color:#C9A227;display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:900;border:3px solid var(--acc)">${((p.prenom||'?')[0]+(p.nom||'?')[0]).toUpperCase()}</div>`;
+  document.getElementById('pg-profil').innerHTML=`
+    <div class="ptitle">🪪 Informations personnelles</div>
+    <div class="card" style="max-width:600px">
+     <div class="chead"><h3>Mon profil</h3></div>
+     <div class="cbody">
+      <div style="display:flex;gap:24px;align-items:center;margin-bottom:20px;flex-wrap:wrap">
+       <div style="text-align:center">
+        <div id="profil-photo-wrap" style="margin-bottom:8px">${photoHtml}</div>
+        <input type="file" id="profil-photo-input" accept="image/*" style="display:none" onchange="uploadMyPhoto(this)">
+        <button class="btn bo bsm" onclick="document.getElementById('profil-photo-input').click()">📷 Changer photo</button>
+       </div>
+       <div style="flex:1;min-width:200px">
+        <div style="font-size:1.4rem;font-weight:800;color:var(--p)">${p.prenom||''} ${p.nom}</div>
+        <div style="margin:4px 0"><span class="role-chip rc-${p.role}">${RFR[p.role]||p.role}</span></div>
+        <div style="font-size:.85rem;color:var(--mut);margin-top:6px">${p.fonction||'—'}</div>
+        <div style="font-size:.82rem;margin-top:4px">📧 ${p.email}</div>
+        ${p.telephone?`<div style="font-size:.82rem">📱 ${p.telephone}</div>`:''}
+        <div style="font-size:.82rem;margin-top:2px">🏢 ${bur?bur.nom:'—'}</div>
+       </div>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--bdr);margin:12px 0">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+       <div class="fg"><label>Prénom</label><input id="prf-prenom" value="${p.prenom||''}"></div>
+       <div class="fg"><label>Nom</label><input id="prf-nom" value="${p.nom||''}"></div>
+       <div class="fg"><label>Téléphone</label><input id="prf-tel" value="${p.telephone||''}"></div>
+       <div class="fg"><label>Date de naissance</label><input type="date" id="prf-dob" value="${p.dateNaissance||''}"></div>
+       <div class="fg" style="grid-column:1/-1"><label>Adresse</label><input id="prf-adr" value="${p.adresse||''}"></div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end">
+       <button class="btn bp" onclick="saveProfil()">💾 Enregistrer</button>
+       <button class="btn bo" onclick="om('mo-chgpw')">🔒 Changer mot de passe</button>
+      </div>
+     </div>
+    </div>`;
+}
+function uploadMyPhoto(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const pers=getDB('personnel'); const idx=pers.findIndex(p=>p.personnel_id===CU.personnel_id);
+    if(idx>=0){pers[idx].photo_profil=e.target.result;setDB('personnel',pers);CU.photo_profil=e.target.result;}
+    toast('Photo mise à jour','ok'); loadProfil();
+  };
+  reader.readAsDataURL(file);
+}
+function saveProfil(){
+  const pers=getDB('personnel'); const idx=pers.findIndex(p=>p.personnel_id===CU.personnel_id);
+  if(idx>=0){
+    pers[idx].prenom=document.getElementById('prf-prenom').value;
+    pers[idx].nom=document.getElementById('prf-nom').value;
+    pers[idx].telephone=document.getElementById('prf-tel').value;
+    pers[idx].adresse=document.getElementById('prf-adr').value;
+    pers[idx].dateNaissance=document.getElementById('prf-dob').value;
+    setDB('personnel',pers);
+    CU.nom=pers[idx].nom; CU.prenom=pers[idx].prenom;
+    document.getElementById('uname').textContent=`${CU.prenom||''} ${CU.nom}`;
+  }
+  toast('Profil mis à jour','ok');
+}
+function doChangePw(){
+  const old=document.getElementById('chgpw-old').value;
+  const nw=document.getElementById('chgpw-new').value;
+  const cf=document.getElementById('chgpw-cf').value;
+  if(!old||!nw){toast('Remplissez tous les champs','err');return;}
+  if(nw!==cf){toast('Les mots de passe ne correspondent pas','err');return;}
+  if(nw.length<6){toast('Minimum 6 caractères','err');return;}
+  const pers=getDB('personnel'); const idx=pers.findIndex(p=>p.personnel_id===CU.personnel_id);
+  if(idx<0||pers[idx].mot_de_passe!==h(old)){toast('Mot de passe actuel incorrect','err');return;}
+  pers[idx].mot_de_passe=h(nw); setDB('personnel',pers);
+  cm('mo-chgpw');
+  ['chgpw-old','chgpw-new','chgpw-cf'].forEach(id=>document.getElementById(id).value='');
+  toast('🔒 Mot de passe changé avec succès','ok');
+}
+
+// ── POPULATE SELECTS ──
+function populateSels(){
+  const bureaux=getDB('bureaux');
+  const pers=getDB('personnel');
+  const acts=getDB('activites');
+  const taches=getDB('taches');
+  const bO=bureaux.map(b=>`<option value="${b.bureau_id}">${b.nom}</option>`).join('');
+  const pO=pers.map(p=>`<option value="${p.personnel_id}">${p.nom} ${p.prenom||''} (${RFR[p.role]||p.role})</option>`).join('');
+  const aO=acts.map(a=>`<option value="${a.activite_id}">${a.nom}</option>`).join('');
+  const tO=taches.map(t=>`<option value="${t.tache_id}">${t.libelle}</option>`).join('');
+  ['ma-b','tp-b','mp-b'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=bO;});
+  ['mt-a'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=aO;});
+  const mpS=document.getElementById('mp-s');if(mpS)mpS.innerHTML='<option value="">-- Aucun --</option>'+pO;
+  const subP=pers.filter(p=>p.superieur_id===CU.personnel_id);
+  const subO=subP.map(p=>`<option value="${p.personnel_id}">${p.nom} ${p.prenom||''} (${RFR[p.role]||p.role})</option>`).join('');
+  const aP=document.getElementById('aff-pid');if(aP)aP.innerHTML=subO||pO;
+  const emPS=document.getElementById('em-pid-sel');
+  if(emPS)emPS.innerHTML=pers.filter(p=>p.personnel_id!==CU.personnel_id).map(p=>`<option value="${p.personnel_id}">${p.nom} ${p.prenom||''} (${RFR[p.role]||p.role})</option>`).join('');
+  const sgT=document.getElementById('sg-t');if(sgT)sgT.innerHTML='<option value="">-- Aucune --</option>'+tO;
+  const crT=document.getElementById('cr-t');if(crT)crT.innerHTML='<option value="">-- Général --</option>'+tO;
+}
+
+// ── UTILS ──
+function srchFilter(inputId, tableBodySelector){
+  const q=document.getElementById(inputId).value.toLowerCase();
+  document.querySelectorAll(tableBodySelector+' tr').forEach(tr=>{
+    tr.style.display=tr.textContent.toLowerCase().includes(q)?'':'none';
+  });
+}
+function toggleNav(){
+  const n=document.getElementById('nav');
+  n.classList.toggle('nav-open');
+  document.querySelector('.nav-overlay').style.display=n.classList.contains('nav-open')?'block':'';
+}
+
+const LOADS={
+  dashboard:loadDashboard, bureaux:loadBureaux, activites:loadActivites, taches:loadTaches,
+  affecter:loadAffecter, personnel:loadPersonnel, performances:loadPerformances,
+  'employe-mois':loadEmployeMois, telepaiement:loadTelepaiement, signalements:loadSignalements,
+  propositions:loadPropositions, cr:loadCR, avis:loadAvis, profil:loadProfil
+};
+
+document.getElementById('l-p').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// ── INIT ──
+initData();
+</script></body></html>
